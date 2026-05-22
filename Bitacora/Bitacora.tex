@@ -78,10 +78,92 @@ Vargas Vega Jimena\\[0.2cm]
 \end{itemize}
 
 }
+\logentry{José}{16 de mayo}{
 
+\subsection{Diseño del reloj de 1 Hz}
 
+Se implementó y simuló un circuito temporizador utilizando un NE555 en configuración astable con el objetivo de generar una señal periódica de aproximadamente 1 Hz. Esta señal se usará como reloj para los contadores y la fsm del sistema de semáforo \cite{electronicafp}.
+
+Durante las pruebas en Multisim se ajustaron los valores de resistencias y capacitor para aproximar el período deseado. Finalmente se utilizaron los siguientes valores:
+
+\begin{itemize}
+    \item $R_A = 12~k\Omega$
+    \item $R_B = 68~k\Omega$
+    \item $C = 10~\mu F$
+\end{itemize}
+
+La salida obtenida corresponde a una onda cuadrada cercana a 1 Hz.
+}
+
+\logentry{José}{17 de mayo}{
+\subsection{Botón peatonal}
+
+Debido al rebote mecánico de los pulsadores, se implementó un circuito antirrebote utilizando una red RC y compuertas Schmitt Trigger.
+
+Para esta etapa se utilizó un circuito integrado 74LS14D, el cual contiene inversores Schmitt Trigger. Se emplearon dos inversores en serie para obtener una señal limpia y no invertida denominada \texttt{BTN\_CLEAN} \cite{howtomechatronics}.
+
+Los valores utilizados en la red RC fueron:
+
+\begin{itemize}
+    \item $R = 10~k\Omega$
+    \item $C = 100~nF$
+\end{itemize}
+
+Las simulaciones mostraron una transición estable y libre de rebotes.
+}
+
+\logentry{José}{20 de mayo}{
+\subsection{Detección del estado S0}
+
+Se implementó la lógica necesaria para habilitar la solicitud peatonal únicamente cuando el sistema se encuentra en el estado S0 de la fsm.
+
+Considerando la codificación:
+
+\[
+S0 = Q1Q0 = 00
+\]
+
+se utilizó una compuerta NOR 74LS02 para generar la señal:
+
+\[
+S0\_ACTIVE = \overline{Q1 + Q0}
+\]
+
+De esta forma, la salida únicamente se activa cuando ambos bits de estado son cero.
+
+\subsection{Validación de solicitud peatonal}
+
+La señal del botón acondicionada (\texttt{BTN\_CLEAN}) se combinó con la señal \texttt{S0\_ACTIVE} mediante una compuerta AND 74LS08 para generar la señal:
+
+\[
+REQUEST\_VALID = BTN\_CLEAN \cdot S0\_ACTIVE
+\]
+
+Esto garantiza que el botón peatonal únicamente sea aceptado durante el estado S0.
+
+\subsection{Memoria de solicitud peatonal}
+
+Se implementó un bloque de memoria utilizando un flip-flop D 74LS74. Este bloque básicamente permite almacenar la solicitud peatonal aun cuando el botón haya sido liberado.
+
+La configuración utilizada fue:
+
+\begin{itemize}
+    \item Entrada D conectada a nivel lógico alto.
+    \item Señal \texttt{REQUEST\_VALID} conectada al reloj del flip-flop.
+    \item Salida Q utilizada como \texttt{REQUEST\_LATCH}.
+\end{itemize}
+
+Las pruebas en simulación confirmaron que la solicitud permanece almacenada hasta que se active una señal de reinicio.
+
+}
 
 	\begin{thebibliography}{99}
+	\bibitem{howtomechatronics}
+	How To Mechatronics, ``What Is Schmitt Trigger and How It Works,'' YouTube, 2015. [Online]. Available: \url{https://www.youtube.com/watch?v=Nrp8OgQLAlw}
+
+	\bibitem{electronicafp}
+	Electrónica FP, ``555 Astable,'' YouTube, 2021. [Online]. Available: \url{https://www.youtube.com/watch?v=OKDaA-yE2QY}
+
 	\bibitem{lameres2024}
 	\end{thebibliography}
 % ------------------------------------------------------------
