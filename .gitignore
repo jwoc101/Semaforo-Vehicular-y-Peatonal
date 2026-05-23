@@ -1,4 +1,7 @@
 *.log
 *.synctex.gz
+<<<<<<< HEAD
 *.out
 *.aux
+=======
+>>>>>>> 8776dbd (Añadir template de propuesta y .gitignore)
