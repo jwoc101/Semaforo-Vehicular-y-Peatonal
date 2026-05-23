@@ -129,9 +129,6 @@ Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito i
     \label{fig:bloque2_boton}
 \end{figure}
 
-\subsubsection{FSM}
-
-Texto.
 
 \subsubsection{Memoria del botón}
 
@@ -224,6 +221,276 @@ En la Fig. \ref{fig:bloque3_memoria_boton} se muestra la implementación complet
 
 
 
+
+
+\subsection{Sistema de Control}
+El sistema de control está diseñado para que desde este modulo se
+puedan manejar las demás etapas del proyecto, ya que de aquí se
+van a generar las señales de activación y desactivación para que
+funcionen otros sistemas, como las luces de los semáforos tanto del
+vehicular como del peatonal, así como la señal del audio, la cuenta
+regresiva y los tiempos de espera. Por lo que era importante
+investigar la forma más óptima y segura de poder generar las señales
+que de una manera segura eficiente.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% PARTE DE LA FSM
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\subsubsection{Maquina de estados}
+Para la creación del controlador se implementó una máquina de estados
+basándose en un ejemplo del libro de Harris y Harris
+\cite{harris_digital}, el cual presentaba cuatro estados de control
+para un cruce de dos vías. Adaptándolo a las características del
+proyecto, se utilizaron igualmente cuatro estados, pero con otras
+variables de señales de salida. Se puede observar en la
+Fig.~\ref{fig:fsm}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm.png}
+    \caption{Diagrama de la máquina de estados del semáforo.}
+    \label{fig:fsm}
+\end{figure}
+
+De acuerdo con la lógica implementada, en el estado inicial se
+mantienen la luz verde del semáforo vehicular y luz roja del
+semáforo peatonal siempre que $T_B = 0$; en el caso de que cambie
+con $T_B = 1$ pasa al segundo estado donde se activa la luz
+amarilla del semáforo vehicular y se mantiene la luz roja del
+peatonal. Aquí se va a utilizar la señal $T_C$ para controlar los
+tiempos de espera en cada estado; para el siguiente estado se
+cambia la señal del semáforo vehicular a rojo y el peatonal a
+verde, iniciando la cuenta regresiva y la señal de audio durante
+15 segundos. Por último, al llegar al estado S3, este solo se
+creó para diferenciar los últimos 5 segundos donde el ritmo de
+la señal de audio se va a aumentar para indicarle al peatón que
+ya se le va a finalizar su tiempo.
+
+Definida la máquina de estados, se procedió a la creación de las
+tablas de verdad.
+
+% ---- Tabla 1: Transición de estados ----
+\begin{table}[H]
+\centering
+\caption{Tabla de transición de estados.}
+\label{tab:transicion}
+\begin{tabular}{c c c c}
+\hline
+Estado actual & $T_B$ & $T_C$ & Próximo estado \\
+\hline
+S0 & 0 & X & S0 \\
+S0 & 1 & X & S1 \\
+S1 & X & 0 & S1 \\
+S1 & X & 1 & S2 \\
+S2 & X & 0 & S2 \\
+S2 & X & 1 & S3 \\
+S3 & X & 0 & S3 \\
+S3 & X & 1 & S0 \\
+\hline
+\end{tabular}
+\end{table}
+
+% ---- Tabla 2: Codificación de estados ----
+\begin{table}[H]
+\centering
+\caption{Tabla de codificación de estados.}
+\label{tab:codificacion}
+\begin{tabular}{c c c}
+\hline
+Estado & $S_1$ & $S_0$ \\
+\hline
+S0 & 0 & 0 \\
+S1 & 0 & 1 \\
+S2 & 1 & 0 \\
+S3 & 1 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+% ---- Tabla 3: Transición con codificación binaria ----
+\begin{table}[H]
+\centering
+\caption{Tabla de transición con codificación binaria.}
+\label{tab:transicion_bin}
+\begin{tabular}{c c c c c c}
+\hline
+\multicolumn{2}{c}{Estado actual} & $T_B$ & $T_C$ &
+\multicolumn{2}{c}{Próximo estado} \\
+$S_1$ & $S_0$ & & & $S_1'$ & $S_0'$ \\
+\hline
+0 & 0 & 0 & X & 0 & 0 \\
+0 & 0 & 1 & X & 0 & 1 \\
+0 & 1 & X & 0 & 0 & 1 \\
+0 & 1 & X & 1 & 1 & 0 \\
+1 & 0 & X & 0 & 1 & 0 \\
+1 & 0 & X & 1 & 1 & 1 \\
+1 & 1 & X & 0 & 1 & 1 \\
+1 & 1 & X & 1 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+% ---- Tabla 4: Tabla de salidas ----
+\begin{table}[H]
+\centering
+\caption{Tabla de salidas de la máquina de estados.}
+\label{tab:salidas}
+\begin{tabular}{c c c c c c c c c c}
+\hline
+Estado & $S_1$ & $S_0$ & LV & LA & LR & PV & PR & AUD & AF \\
+\hline
+S0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 \\
+S1 & 0 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 0 \\
+S2 & 1 & 0 & 0 & 0 & 1 & 1 & 0 & 1 & 0 \\
+S3 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 1 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+Definidas las tablas de verdad, se crearon los mapas de Karnaugh
+para optimizar las compuertas y obtener las ecuaciones booleanas
+necesarias para implementar los circuitos.
+
+% ---- K-map de S1' (4 variables) ----
+\begin{table}[H]
+\centering
+\caption{Mapa de Karnaugh para $S_1'$.}
+\label{tab:kmap_s1}
+\begin{tabular}{cc|cccc}
+\hline
+$T_B T_C \backslash S_1 S_0$\\
+ & & 00 & 01 & 11 & 10 \\
+\hline
+0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 1 & 1 & 0 \\
+1 & 1 & 1 & 0 & 0 & 1 \\
+1 & 0 & 1 & 1 & 1 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{equation}
+S_1' = S_1 \cdot \overline{S_0}
+     + S_1 \cdot \overline{T_C}
+     + \overline{S_1} \cdot S_0 \cdot T_C
+\label{eq:s1_next}
+\end{equation}
+
+% ---- K-map de S0' (4 variables) ----
+\begin{table}[H]
+\centering
+\caption{Mapa de Karnaugh para $S_0'$.}
+\label{tab:kmap_s0}
+\begin{tabular}{cc|cccc}
+\hline
+$T_B T_C \backslash S_1 S_0$\\
+ & & 00 & 01 & 11 & 10 \\
+\hline
+0 & 0 & 0 & 0 & 1 & 1 \\
+0 & 1 & 1 & 0 & 0 & 1 \\
+1 & 1 & 1 & 0 & 0 & 1 \\
+1 & 0 & 0 & 1 & 1 & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{equation}
+S_0' = S_0 \cdot \overline{T_C}
+     + S_1 \cdot \overline{S_0} \cdot T_C
+     + \overline{S_1} \cdot \overline{S_0} \cdot T_B
+\label{eq:s0_next}
+\end{equation}
+
+% ---- K-maps de salidas (2 variables) ----
+\begin{table}[H]
+\centering
+\caption{Mapas de Karnaugh para las señales de salida.}
+\label{tab:kmap_salidas}
+
+\vspace{0.5em}
+\textbf{LV} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 1 & 0 \\
+1 & 0 & 0 \\
+\end{tabular}
+\hfill
+\textbf{LA} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 0 & 1 \\
+1 & 0 & 0 \\
+\end{tabular}
+\hfill
+\textbf{LR} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+1 & 1 & 1 \\
+\end{tabular}
+
+\vspace{1em}
+\textbf{PV} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+1 & 1 & 1 \\
+\end{tabular}
+\hfill
+\textbf{PR} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 1 & 1 \\
+1 & 0 & 0 \\
+\end{tabular}
+\hfill
+\textbf{AUD} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+1 & 1 & 1 \\
+\end{tabular}
+
+\vspace{1em}
+\textbf{AF} \quad
+\begin{tabular}{c|cc}
+$S_1 \backslash S_0$ & 0 & 1 \\
+\hline
+0 & 0 & 0 \\
+1 & 0 & 1 \\
+\end{tabular}
+\end{table}
+
+\begin{align}
+LV  &= \overline{S_1} \cdot \overline{S_0} \label{eq:lv} \\
+LA  &= \overline{S_1} \cdot S_0 \label{eq:la} \\
+LR  &= PV = AUD = S_1 \label{eq:lr} \\
+PR  &= \overline{S_1} \label{eq:pr} \\
+AF  &= S_1 \cdot S_0 \label{eq:af}
+\end{align}
+
+Una vez obtenidas y simplificadas las funciones mediante los mapas de Karnaugh, se procedió al diseño e implementación de los circuitos utilizando compuertas lógicas, dando como resultado el dibujo de la 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_dibujo.png}
+    \caption{Diagrama del circuito de la máquina de estados dibujado.}
+    \label{fig:fsm_dibujado}
+\end{figure}
+
+
+De con la cantidad de compuerta de AND, OR e inversores se propuso utilizar algunos componentes integrados como el 74HC04, tres del del 74HC08, uno del 74HC075 y otro del 74HC74. 
 
 
 
