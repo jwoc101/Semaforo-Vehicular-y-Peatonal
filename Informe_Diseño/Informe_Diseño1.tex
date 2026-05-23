@@ -1,0 +1,265 @@
+\documentclass[12pt,onecolumn]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{geometry}
+\usepackage{float}
+
+\geometry{margin=1in}
+
+\title{Proyecto Final: Semáforo Vehicular y Peatonal}
+
+\author{
+Gabriel Alonso Chavarría Rodríguez\\
+José Andrés Guerrero Araya\\
+Julián Murillo Wo Ching\\
+Jimena Vargas Vega
+}
+
+\date{\today}
+
+\begin{document}
+
+% The paper headers
+\markboth{EL3215 Laboratorio de Electrónica Analógica, IS2026}%
+{EL3215 Laboratorio de Electrónica Analógica}
+
+\maketitle
+
+\begin{abstract}
+Resumen del proyecto.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Semáforo, FSM, temporización, lógica digital, electrónica analógica.
+\end{IEEEkeywords}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introducción}
+
+Texto de introducción.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Propuesta de diseño}
+
+\subsection{Subsistema de Control y Temporización}
+
+\subsubsection{Reloj con Temporizador 555}
+
+Para el funcionamiento adecuado del sistema de control, y en general del proyecto, se requiere una señal de reloj que permita establecer una referencia de tiempo para los contadores y la máquina de estados. Por esta razón, se diseñó un circuito basado en el temporizador 555 en configuración astable, ya que esta configuración permite generar una señal cuadrada periódica sin necesidad de una señal externa de disparo.
+
+La frecuencia de oscilación del 555 en modo astable se aproxima mediante \cite{electronicafp}:
+
+\begin{equation}
+    f = \frac{1.44}{(R_A + 2R_B)C}
+\end{equation}
+
+El objetivo fue obtener una frecuencia cercana a $1~Hz$, de manera que cada ciclo de la señal represente aproximadamente un segundo dentro del sistema. Inicialmente se seleccionaron valores comerciales para las resistencias y el capacitor, y posteriormente se ajustó el valor de $R_A$ para acercar la frecuencia al valor deseado.
+
+Los valores utilizados fueron:
+
+\begin{itemize}
+    \item $R_A = 12~k\Omega$
+    \item $R_B = 68~k\Omega$
+    \item $C = 10~\mu F$
+\end{itemize}
+
+Sustituyendo estos valores en la ecuación:
+
+\begin{equation}
+    f = \frac{1.44}{(12k\Omega + 2(68k\Omega))(10\mu F)}
+\end{equation}
+
+\begin{equation}
+    f \approx 0.973~Hz
+\end{equation}
+
+Por lo tanto, el período aproximado es:
+
+\begin{equation}
+    T = \frac{1}{f} \approx 1.03~s
+\end{equation}
+
+Este valor se considera adecuado para la propuesta de diseño, ya que se encuentra cercano a $1~Hz$ y permite utilizar la salida del 555 como reloj base del sistema. La salida del temporizador se conecta a un LED únicamente como indicador visual durante la simulación (Figura 1).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig/Bloque1_555.png}
+    \caption{Circuito del reloj de aproximadamente 1 Hz implementado con temporizador 555 en configuración astable.}
+    \label{fig:bloque1_555}
+\end{figure}
+
+\subsubsection{Botón y Antirrebote}
+El botón peatonal funciona como la entrada principal externa hacia el sistema de control. Básicamente su activación acciona toda la lógica de ambos semáforos y sistemas asociados por medio de la máquina de estados. Sin embargo, los pulsadores mecánicos pueden generar rebotes no deseados durante su accionar, provocando así múltiples transiciones rápidas aunque solo se haya presionado el botón una vez. Para evitar que la máquina de estados interprete una sola pulsación como varias solicitudes, se implementó un circuito de antirrebote.
+
+El circuito utiliza una red RC formada por una resistencia de pull-down y un capacitor conectado a tierra. Esta red suaviza las variaciones rápidas producidas por el rebote mecánico del pulsador. Los valores seleccionados fueron:
+
+\begin{itemize}
+    \item $R = 10~k\Omega$
+    \item $C = 100~nF$
+\end{itemize}
+
+La constante de tiempo de la red RC se calcula como:
+
+\begin{equation}
+    \tau = RC
+\end{equation}
+
+Sustituyendo los valores utilizados:
+
+\begin{equation}
+    \tau = (10k\Omega)(100nF)
+\end{equation}
+
+\begin{equation}
+    \tau = 1~ms
+\end{equation}
+
+Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito integrado 74LS14D (Figura 2). El primer inversor convierte la señal suavizada en una señal digital estable, mientras que el segundo inversor se utiliza para recuperar la polaridad original. De esta forma, la salida final, denominada \texttt{BTN\_CLEAN}, toma un valor lógico alto cuando el botón es presionado y un valor lógico bajo cuando se encuentra liberado.  En resumen, este módulo genera una salida llamada \texttt{BTN\_CLEAN} que será usada a partir de ahora para referirse a la señal limpia del botón.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig/Bloque2_Boton.png}
+    \caption{Circuito de entrada del botón peatonal con red RC y compuertas Schmitt Trigger.}
+    \label{fig:bloque2_boton}
+\end{figure}
+
+\subsubsection{FSM}
+
+Texto.
+
+\subsubsection{Memoria del botón}
+
+La memoria del botón surge a partir de una consideración importante del sistema: ¿qué ocurre si el botón peatonal se presiona mientras el semáforo ya se encuentra en media secuencia? Para evitar que una nueva pulsación altere el funcionamiento del sistema en la máquina de estados, se decidió que el botón solamente debe ser aceptado cuando la misma s se encuentra en el estado inicial $S0$, ya que solamente aquí habría una necesidad real de cruzar.
+
+La codificación de estados considerada para la máquina de estados es la siguiente:
+
+\begin{table}[H]
+    \centering
+    \caption{Codificación de estados de la FSM.}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Estado & $Q1$ & $Q0$ \\
+        \hline
+        $S0$ & 0 & 0 \\
+        \hline
+        $S1$ & 0 & 1 \\
+        \hline
+        $S2$ & 1 & 0 \\
+        \hline
+        $S3$ & 1 & 1 \\
+        \hline
+    \end{tabular}
+    \label{tab:codificacion_fsm}
+\end{table}
+
+Como el único estado en el que se desea aceptar el botón es $S0$, se implementó una señal de habilitación llamada \texttt{S0\_ACTIVE}. Esta señal debe ser igual a 1 únicamente cuando $Q1=0$ y $Q0=0$. Para lograr esto se utilizó una compuerta NOR 74LS02, ya que:
+
+\begin{equation}
+    S0\_ACTIVE = \overline{Q1 + Q0}
+\end{equation}
+
+De esta forma, cuando el sistema se encuentra en $S0$, la salida de la NOR se activa. En cualquier otro estado, la señal permanece en cero.
+
+Luego, la señal \texttt{S0\_ACTIVE} se combina con la salida limpia del botón (\texttt{BTN\_CLEAN}). Esta combinación genera la señal \texttt{REQUEST\_VALID}, la cual indica que existe una solicitud peatonal válida:
+
+\begin{equation}
+    REQUEST\_VALID = S0\_ACTIVE \cdot BTN\_CLEAN
+\end{equation}
+
+Para implementar esta operación lógica se utilizó una compuerta AND 74LS08. La Tabla \ref{tab:request_valid} muestra el comportamiento esperado cuando el botón se encuentra presionado, es decir, cuando \texttt{BTN\_CLEAN = 1}.
+
+\begin{table}[H]
+    \centering
+    \caption{Validación del botón peatonal según el estado actual.}
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        $Q1$ & $Q0$ & Estado & \texttt{S0\_ACTIVE} & \texttt{BTN\_CLEAN} & \texttt{REQUEST\_VALID} \\
+        \hline
+        0 & 0 & $S0$ & 1 & 1 & 1 \\
+        \hline
+        0 & 1 & $S1$ & 0 & 1 & 0 \\
+        \hline
+        1 & 0 & $S2$ & 0 & 1 & 0 \\
+        \hline
+        1 & 1 & $S3$ & 0 & 1 & 0 \\
+        \hline
+    \end{tabular}
+    \label{tab:request_valid}
+\end{table}
+
+En esta tabla, $Q1$ y $Q0$ representan los bits del estado actual de la FSM. La señal \texttt{S0\_ACTIVE} confirma que el sistema está en el estado inicial. La señal \texttt{BTN\_CLEAN} corresponde a la salida del circuito antirrebote del botón peatonal. Finalmente, \texttt{REQUEST\_VALID} indica que la solicitud debe ser aceptada por el sistema.
+
+Una vez generada la señal \texttt{REQUEST\_VALID}, es necesario almacenarla, ya que se podría soltar el botón antes de que la FSM procese la solicitud. Para esto se utilizó un flip-flop D 74LS74. La entrada $D$ se conectó a nivel lógico alto, mientras que la señal \texttt{REQUEST\_VALID} se conectó al reloj del flip-flop. De esta forma, cuando ocurre un flanco positivo en \texttt{REQUEST\_VALID}, el flip-flop almacena un 1 en su salida $Q$.
+
+La salida $Q$ del flip-flop se denomina $TB$. Esta señal permanece en 1 aunque el botón sea liberado, indicando que existe una solicitud peatonal pendiente. Posteriormente, esta memoria se reinicia mediante la señal de reset proveniente de la FSM, haciendo que $TB$ vuelva a cero una vez que la solicitud ha sido atendida.
+
+La configuración utilizada para el 74LS74 fue la siguiente \cite{74ls74datasheet}:
+
+\begin{itemize}
+    \item Entrada $D$ conectada a $5~V$.
+    \item Entrada de reloj conectada a \texttt{REQUEST\_VALID}.
+    \item Salida $Q$ utilizada como $TB$.
+    \item Entrada \texttt{CLR} conectada a la señal de reinicio de la FSM.
+    \item Entrada \texttt{PR} conectada a nivel lógico alto para mantenerla inactiva.
+\end{itemize}
+
+En la Fig. \ref{fig:bloque3_memoria_boton} se muestra la implementación completa del bloque de validación y memoria del botón peatonal.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{fig/Bloque3_Memoria_Boton.png}
+    \caption{Circuito de validación y memoria de la solicitud peatonal.}
+    \label{fig:bloque3_memoria_boton}
+\end{figure}
+
+\subsection{Subsistema Audio}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Simulaciones}
+
+\subsection{Simulación de algo}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusiones}
+
+\begin{itemize}
+    \item Conclusión 1.
+    \item Conclusión 2.
+    \item Conclusión 3.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{99}
+\bibitem{74ls74datasheet}
+Texas Instruments, ``SN74LS74A Dual D-Type Positive-Edge-Triggered Flip-Flops With Preset and Clear Datasheet,'' Dallas, TX, USA. [Online]. Available: \url{https://c1555f5ec9.clvaw-cdnwnd.com/34662fcf1f1e607c561442431023ac8e/200000751-dcad7dda84/74LS74%20Datasheet.pdf}
+\bibitem{electronicafp}
+Electrónica FP, ``555 Astable,'' YouTube, 2021. [Online]. Available: \url{https://www.youtube.com/watch?v=OKDaA-yE2QY}
+\bibitem{fulano}
+
+
+\end{thebibliography}
+
+\end{document}
