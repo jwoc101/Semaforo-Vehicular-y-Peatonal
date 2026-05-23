@@ -1,7 +1,12 @@
 *.log
 *.synctex.gz
 <<<<<<< HEAD
+<<<<<<< HEAD
 *.out
 *.aux
 =======
 >>>>>>> 8776dbd (Añadir template de propuesta y .gitignore)
+=======
+*.out
+*.aux
+>>>>>>> c9ad874 (Update .gitignore)
