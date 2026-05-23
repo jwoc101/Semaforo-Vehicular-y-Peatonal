@@ -9,6 +9,7 @@
 \usepackage{cite}
 \usepackage{geometry}
 \usepackage{float}
+\usepackage{siunitx}
 
 \geometry{margin=1in}
 
@@ -47,9 +48,21 @@ Texto de introducción.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Propuesta de diseño}
 
+\subsection{Subsistema de Alimentación}
+
+La tensión de alimentación para el proyecto en su totalidad va a producirse por una fuente de \qty{120}{VAC}, de manera que puede ser enchufado directamente a un tomacorrientes cotidiano. Esta señal será recibida por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal del transformador pasara por un arreglo rectificador de 4 diodos 1N4007, acompañado por un capacitor de filtrado de \qty{2000}{\mu F}. El subsistema hasta este punto produce una señal promedio de \qty{15}{V}. Sin embargo, se planea utilizar un regulador de voltaje para obtener una señal aún más lineal. La salida de este regulador será decidida a futuro, cuando los prototipos de los otros subsistemas indiquen cual será el voltaje máximo requerido de la alimentación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig/Alimentacion.png}
+    \caption{Subsistema de alimentación}
+    \label{fig:Alimentacion}
+\end{figure}
+
 \subsection{Subsistema de Control y Temporización}
 
 \subsubsection{Reloj con Temporizador 555}
+
 
 Para el funcionamiento adecuado del sistema de control, y en general del proyecto, se requiere una señal de reloj que permita establecer una referencia de tiempo para los contadores y la máquina de estados. Por esta razón, se diseñó un circuito basado en el temporizador 555 en configuración astable, ya que esta configuración permite generar una señal cuadrada periódica sin necesidad de una señal externa de disparo.
 
@@ -129,7 +142,7 @@ Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito i
     \label{fig:bloque2_boton}
 \end{figure}
 
-\subsubsection{FSM}
+\subsubsection{Conteo de la FSM}
 
 Texto.
 
