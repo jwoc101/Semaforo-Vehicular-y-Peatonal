@@ -871,7 +871,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S1
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_verde.png}
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_verde.png}
     \caption{Simulación del semáforo vehicular luz verde}
     \label{fig:sim_v_verde}
 \end{figure}
@@ -880,7 +880,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S2
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_amarillo.png}
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_amarillo.png}
     \caption{Simulación del semáforo vehicular luz amarilla}
     \label{fig:sim_v_amarillo}
 \end{figure}
@@ -888,7 +888,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_rojo.png}
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_rojo.png}
     \caption{Simulación del semáforo vehicular luz roja}
     \label{fig:sim_v_rojo}
 \end{figure}
@@ -905,26 +905,44 @@ lados de la calle, así se puede observar en las
 Fig.~\ref{fig:sim_p_rojo} y Fig.~\ref{fig:sim_p_verde}.
 
 
-\subsubsection{Señalización del del conteo regresivo}
-Para la señalización de la cuenta regresiva se puede observar en la figuras Fig.~\ref{fig:sim_display_20} que se va activar con la señal del AUD porque al final tanto el sonido como el display debe estar sincronizado a que se inicien en el mismo instante entonces en el momento que se activa AUD, se debe iniciar tanto la señal de la cuenta regresiva como la señal auditiva para el peatón. 
-
-
 %%%FMS S2
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_display_20.png}
-    \caption{Simulación de la cuenta regresiva inicial}
-    \label{fig:sim_display_20}
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_p_rojo.png}
+    \caption{Simulación del semáforo peatonal luz roja}
+    \label{fig:sim_p_rojo}
 \end{figure}
-
-Y en la segunda Fig.~\ref{fig:sim_display_5} se demuestra como esta debidamente sincronizados ya que en el momento que la señal AF se activa deben de faltar 5 segundos en el display.
-
 
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_display-5.png}
-    \caption{Simulación de la cuenta regresiva en los últimos 5 segundo}
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_p_verde.png}
+    \caption{Simulación del semáforo peatonal luz verde}
+    \label{fig:sim_p_verde}
+\end{figure}
+
+
+\subsubsection{Señalización del del conteo regresivo}
+Para la señalización de la cuenta regresiva se puede observar en la figuras Fig.~\ref{fig:sim_display_20} que se va activar con la señal del AUD porque al final tanto el sonido como el display debe estar sincronizado a que se inicien en el mismo instante entonces en el momento que se activa AUD, se debe iniciar tanto la señal de la cuenta regresiva como la señal auditiva para el peatón. 
+
+
+%%%Display 20s
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_display_20.png}
+    \caption{Simulación de la cuenta regresiva inicial}
+    \label{fig:sim_display_20}
+\end{figure}
+
+Y en la segunda Fig.~\ref{fig:sim_display_5} se demuestra como está
+debidamente sincronizado, ya que en el momento que la señal AF se
+activa deben de faltar 5 segundos en el display.
+
+%%%Display 5s
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_display-5.png}
+    \caption{Simulación de la cuenta regresiva en los últimos 5 segundos}
     \label{fig:sim_display_5}
 \end{figure}
 
@@ -947,20 +965,7 @@ FSM regresa al estado S0.
     \label{fig:contador_display}
 \end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simulaciones}
 
-\subsection{Simulación de algo}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusiones}
-
-\begin{itemize}
-    \item Conclusión 1.
-    \item Conclusión 2.
-    \item Conclusión 3.
-\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}

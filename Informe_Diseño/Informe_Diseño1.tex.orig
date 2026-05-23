@@ -9,12 +9,10 @@
 \usepackage{cite}
 \usepackage{geometry}
 \usepackage{float}
-<<<<<<< HEAD
 \usepackage{siunitx}
-=======
 \usepackage{booktabs}
 \usepackage{array}
->>>>>>> b3b47a6d4d9c91be62b3971f096351865dbe4016
+
 
 \geometry{margin=1in}
 
