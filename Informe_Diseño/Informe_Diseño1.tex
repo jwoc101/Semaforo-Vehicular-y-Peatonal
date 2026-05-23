@@ -2,13 +2,15 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish,es-tabla]{babel}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{cite}
 \usepackage{geometry}
 \usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
 
 \geometry{margin=1in}
 
@@ -217,8 +219,233 @@ En la Fig. \ref{fig:bloque3_memoria_boton} se muestra la implementación complet
 
 \subsection{Subsistema Audio}
 
+El subsistema de audio tiene como objetivo generar señalización auditiva para el semáforo peatonal. Según las especificaciones del proyecto, el sistema debe producir un sonido periódico mientras el paso peatonal está habilitado, y aumentar la frecuencia de ese sonido durante los últimos cinco segundos antes del cambio al estado de detención.
 
+Para lograr esto se diseñó un subsistema compuesto por tres etapas principales: generación de tono y ritmo mediante temporizadores NE555, selección lógica del ritmo adecuado según la fase del semáforo, y amplificación de la señal para excitar un parlante de $8\,\Omega$.
 
+\subsubsection{Generación de Tono y Ritmo}
+
+Se utilizaron tres temporizadores NE555 configurados en modo astable \cite{ne555art}. Esta configuración permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$, según la ecuación:
+
+\begin{equation}
+    f = \frac{1{,}44}{(R_a + 2R_b)\cdot C}
+    \label{eq:555audio}
+\end{equation}
+
+Los tres temporizadores cumplen funciones distintas: uno genera el tono audible, uno genera el ritmo lento para el paso peatonal normal, y uno genera el ritmo rápido para los últimos cinco segundos.
+
+\textbf{NE555 de Tono ($\approx 300\,\text{Hz}$).}
+Este temporizador genera la frecuencia audible que percibe el peatón. Su salida por el pin~3 produce una onda cuadrada de aproximadamente $300\,\text{Hz}$, representativa de los tonos utilizados en semáforos peatonales reales. Los valores de componentes seleccionados se muestran en la Tabla~\ref{tab:555tono}.
+
+\begin{table}[H]
+\centering
+\caption{Componentes del NE555 de tono.}
+\label{tab:555tono}
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Valor} & \textbf{Justificación} \\
+\midrule
+$R_a$       & $1\,\text{k}\Omega$   & Protege el pin de descarga \\
+$R_b$       & $20\,\text{k}\Omega$  & Define la frecuencia junto con $C$ \\
+$C$ timing  & $100\,\text{nF}$      & Capacitor de temporización \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Aplicando la ecuación~\eqref{eq:555audio}:
+
+\begin{equation}
+    f = \frac{1{,}44}{(1\,\text{k} + 2\cdot 20\,\text{k})\cdot 100\,\text{nF}}
+      = \frac{1{,}44}{41\,000 \times 100\times10^{-9}}
+      \approx 351\,\text{Hz}
+\end{equation}
+
+El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de ritmo (TC4066BP), lo que permite interrumpir el tono rítmicamente para crear los bips audibles.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{fig/Tono.png}
+    \caption{Circuito del NE555 de tono ($\approx 351\,\text{Hz}$).}
+    \label{fig:tono}
+\end{figure}
+
+\textbf{NE555 de Ritmo Lento ($\approx 2\,\text{Hz}$).}
+Este temporizador genera la cadencia de bips durante la fase normal del paso peatonal. Para lograr una pausa notablemente más larga que el bip, se incorporó un diodo 1N4149 en paralelo con $R_b$, separando los tiempos de carga y descarga del capacitor:
+
+\begin{align}
+    t_{\text{HIGH}} &= 0{,}693 \cdot R_a \cdot C \\
+    t_{\text{LOW}}  &= 0{,}693 \cdot R_b \cdot C
+\end{align}
+
+Los valores seleccionados se muestran en la Tabla~\ref{tab:555lento}.
+
+\begin{table}[H]
+\centering
+\caption{Componentes del NE555 de ritmo lento.}
+\label{tab:555lento}
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Valor} & \textbf{Función} \\
+\midrule
+$R_a$  & $1\,\text{k}\Omega$   & Duración del bip ($\approx 7\,\text{ms}$) \\
+$R_b$  & $68\,\text{k}\Omega$  & Duración de la pausa ($\approx 470\,\text{ms}$) \\
+$C$    & $10\,\mu\text{F}$     & Capacitor de temporización \\
+Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El pin~4 (RST) recibe la señal de \textit{paso peatonal habilitado} proveniente de la máquina de estados. Mientras esa señal está en HIGH, el temporizador oscila y genera el ritmo; cuando baja a LOW, el temporizador se detiene y el audio se apaga.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{fig/Ritmo_Lento.png}
+    \caption{Circuito del NE555 de ritmo lento ($\approx 2\,\text{Hz}$).}
+    \label{fig:ritmo_lento}
+\end{figure}
+
+\textbf{NE555 de Ritmo Rápido ($\approx 6\,\text{Hz}$).}
+Este temporizador genera la cadencia acelerada durante los últimos cinco segundos del paso peatonal, comunicando urgencia al peatón. Opera con los mismos principios que el de ritmo lento pero con $R_b$ reducido para aumentar la frecuencia. Los valores se muestran en la Tabla~\ref{tab:555rapido}.
+
+\begin{table}[H]
+\centering
+\caption{Componentes del NE555 de ritmo rápido.}
+\label{tab:555rapido}
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Valor} & \textbf{Función} \\
+\midrule
+$R_a$  & $1\,\text{k}\Omega$   & Duración del bip ($\approx 7\,\text{ms}$) \\
+$R_b$  & $20\,\text{k}\Omega$  & Duración de la pausa ($\approx 139\,\text{ms}$) \\
+$C$    & $10\,\mu\text{F}$     & Capacitor de temporización \\
+Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{fig/Ritmo_Rapido.png}
+    \caption{Circuito del NE555 de ritmo rápido ($\approx 6\,\text{Hz}$).}
+    \label{fig:ritmo_rapido}
+\end{figure}
+
+\subsubsection{Selección Lógica del Ritmo}
+
+Para que el subsistema de audio cambie automáticamente entre ritmo lento y ritmo rápido según la fase del semáforo, se implementó un bloque de selección lógica compuesto por un switch analógico TC4066BP y un inversor 74LS14N.
+
+Se utilizó uno de los seis inversores Schmitt del 74LS14N para invertir la señal de \textit{últimos 5~s} proveniente de la máquina de estados. Esta señal invertida controla el Switch~1 del TC4066BP, garantizando que ambos switches operen de forma complementaria y nunca estén activos simultáneamente:
+
+\begin{itemize}
+    \item Señal \textit{últimos 5~s} en LOW $\Rightarrow$ inversor da HIGH $\Rightarrow$ Switch~1 activo $\Rightarrow$ ritmo lento pasa al tono.
+    \item Señal \textit{últimos 5~s} en HIGH $\Rightarrow$ inversor da LOW $\Rightarrow$ Switch~1 inactivo $\Rightarrow$ ritmo rápido toma el control.
+\end{itemize}
+
+Se utilizaron dos switches del TC4066BP para seleccionar cuál señal de ritmo llega al pin~4 (RST) del NE555 de tono: Switch~1 con la salida del 555 de ritmo lento, y Switch~2 con la salida del 555 de ritmo rápido controlado directamente por la señal \textit{últimos 5~s}. De esta forma el TC4066BP actúa como un multiplexor de dos entradas cuya señal de control proviene directamente de la máquina de estados.
+
+\subsubsection{Etapa de Amplificación}
+
+La señal del pin~3 del NE555 de tono tiene una amplitud de aproximadamente $5\,\text{V}_{pp}$ con $V_{CC} = 5\,\text{V}$, suficiente en voltaje pero con poca capacidad de corriente para excitar directamente un parlante de $8\,\Omega$. Por ello se diseñó un amplificador de dos etapas: emisor común para amplificar el voltaje, seguido de un seguidor de emisor para amplificar la corriente.
+
+Antes de ingresar al amplificador, la señal del NE555 se atenúa mediante un divisor de tensión ($47\,\text{k}\Omega$ en serie, con capacitor de acople de $4{,}7\,\mu\text{F}$) para reducirla de $5\,\text{V}$ a aproximadamente $800$--$900\,\text{mV}$, evitando la saturación del transistor de la primera etapa.
+
+\textbf{Primera etapa: Emisor Común (2N2222).}
+La polarización se realiza con un divisor de tensión en la base para establecer el punto Q centrado en $V_{CE} \approx V_{CC}/2$ \cite{2n2222ds}. Los componentes se muestran en la Tabla~\ref{tab:emisor_comun}.
+
+\begin{table}[H]
+\centering
+\caption{Componentes de la primera etapa (emisor común).}
+\label{tab:emisor_comun}
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Valor} & \textbf{Justificación} \\
+\midrule
+$R_1$ (divisor base, $V_{CC}$) & $47\,\text{k}\Omega$    & Fija la corriente del divisor \\
+$R_2$ (divisor base, GND)      & $8{,}2\,\text{k}\Omega$ & Establece $V_B \approx 0{,}74\,\text{V}$ \\
+$R_C$ (colector)               & $1{,}2\,\text{k}\Omega$ & Define $I_C$ y el punto Q \\
+$C$ acople entre etapas        & $100\,\mu\text{F}$      & Bloquea el DC entre etapas \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El punto de operación Q se calcula como:
+
+\begin{align}
+    V_B &= V_{CC} \cdot \frac{R_2}{R_1 + R_2}
+         = 5 \cdot \frac{8{,}2\,\text{k}}{55{,}2\,\text{k}}
+         \approx 0{,}74\,\text{V} \\
+    I_C &= \frac{V_{CC} - V_{CE}}{R_C}
+         = \frac{5 - 2{,}5}{1200}
+         \approx 2{,}08\,\text{mA} \\
+    V_C &\approx 2{,}9\,\text{V} \quad \text{(medido en simulación)}
+\end{align}
+
+\textbf{Segunda etapa: Seguidor de Emisor (TIP31C).}
+La configuración de colector común con TIP31C amplifica la corriente para excitar el parlante, presentando alta ganancia de corriente ($h_{FE} \geq 25$ con $I_C = 1\,\text{A}$ según datasheet \cite{tip31ds}) y baja impedancia de salida. Los componentes se listan en la Tabla~\ref{tab:seguidor_emisor}.
+
+\begin{table}[H]
+\centering
+\caption{Componentes de la segunda etapa (seguidor de emisor).}
+\label{tab:seguidor_emisor}
+\begin{tabular}{lll}
+\toprule
+\textbf{Componente} & \textbf{Valor} & \textbf{Justificación} \\
+\midrule
+$R_6$ (divisor base, $V_{CC}$) & $820\,\Omega$           & Fija la corriente del divisor \\
+$R_7$ (divisor base, GND)      & $2{,}2\,\text{k}\Omega$ & Establece $V_B \approx 2{,}5\,\text{V}$ \\
+Parlante (carga)               & $8\,\Omega$             & Carga en el emisor del TIP31C \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Con $V_B = 2{,}5\,\text{V}$, la corriente y potencia entregadas al parlante resultan:
+
+\begin{align}
+    V_E &= V_B - 0{,}7\,\text{V} = 1{,}8\,\text{V} \\
+    I_C &= \frac{V_E}{R_L} = \frac{1{,}8}{8} = 225\,\text{mA} \\
+    P   &= I_C^2 \cdot R_L = (0{,}225)^2 \times 8 \approx 405\,\text{mW}
+\end{align}
+
+Este valor de potencia es suficiente para garantizar la audibilidad del semáforo peatonal en condiciones normales de uso.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig/Amplificador_Audio.png}
+    \caption{Esquemático del amplificador de dos etapas (emisor común + seguidor de emisor).}
+    \label{fig:amplificador}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig/Subsistema_AUDIO.png}
+    \caption{Esquemático completo del subsistema de audio en Multisim.}
+    \label{fig:subsistema_audio}
+\end{figure}
+
+\subsubsection{Verificación en Simulación}
+
+El subsistema fue simulado en Multisim. Las mediciones con osciloscopio virtual y multímetro confirmaron el correcto funcionamiento de cada etapa. Los resultados se resumen en la Tabla~\ref{tab:verificacion_audio}.
+
+\begin{table}[H]
+\centering
+\caption{Comparación de valores esperados y medidos en simulación.}
+\label{tab:verificacion_audio}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Parámetro} & \textbf{Valor esperado} & \textbf{Valor medido} \\
+\midrule
+Frecuencia del tono      & $\approx 350\,\text{Hz}$  & $\approx 300$--$350\,\text{Hz}$ \\
+Ritmo lento              & $\approx 2\,\text{Hz}$    & $\approx 2\,\text{Hz}$ \\
+Ritmo rápido             & $\approx 6\,\text{Hz}$    & $\approx 6{,}48\,\text{Hz}$ \\
+Voltaje colector etapa~1 & $\approx 2{,}5\,\text{V}$ & $\approx 2{,}9\,\text{V}$ \\
+Voltaje base TIP31C      & $\approx 2{,}5\,\text{V}$ & $\approx 2{,}5\,\text{V}$ \\
+Corriente en parlante    & $\approx 225\,\text{mA}$  & $200$--$240\,\text{mA}$ \\
+Potencia en parlante     & $\approx 405\,\text{mW}$  & $320$--$460\,\text{mW}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Al activar la señal de \textit{últimos 5~s} mediante el switch manual que simula la máquina de estados, el ritmo cambia automáticamente al ritmo rápido, confirmando el correcto funcionamiento del bloque de selección con TC4066BP y 74LS14N. La variación observada en las mediciones de corriente se atribuye a los artefactos del simulador al trabajar con señales de onda cuadrada y múltiples etapas no lineales interactuando simultáneamente.
 
 
 
@@ -240,7 +467,7 @@ que de una manera segura eficiente.
 
 
 
-\subsubsection{Maquina de estados}
+\subsubsection{Máquina de estados}
 Para la creación del controlador se implementó una máquina de estados
 basándose en un ejemplo del libro de Harris y Harris
 \cite{harris_digital}, el cual presentaba cuatro estados de control
@@ -480,7 +707,12 @@ PR  &= \overline{S_1} \label{eq:pr} \\
 AF  &= S_1 \cdot S_0 \label{eq:af}
 \end{align}
 
-Una vez obtenidas y simplificadas las funciones mediante los mapas de Karnaugh, se procedió al diseño e implementación de los circuitos utilizando compuertas lógicas, dando como resultado el dibujo de la 
+Una vez obtenidas y simplificadas las funciones mediante los mapas de Karnaugh,se
+determinó la cantidad de compuertas lógicas necesarias para
+implementar el circuito ya que la ecuación de $S_1'$ requiere tres
+términos AND y una compuerta OR de tres entradas, al igual que la
+ecuación de $S_0'$ y en el caso de las señales de salida LV, LA y
+AF requieren cada una su propia compuerta AND de dos entradas, una vez definido esto se procedió al diseño e implementación de los circuitos utilizando compuertas lógicas, dando como resultado el dibujo de la Fig.~\ref{fig:fsm_dibujado}.
 
 \begin{figure}[H]
     \centering
@@ -489,19 +721,170 @@ Una vez obtenidas y simplificadas las funciones mediante los mapas de Karnaugh, 
     \label{fig:fsm_dibujado}
 \end{figure}
 
+Contemplando las compuertas utilizadas para las señales negadas $\overline{S_1}$, $\overline{S_0}$ y
+$\overline{T_C}$ se puede utilizar el integrado 74HC04, el cual contiene
+seis compuertas NOT de las cuales se emplean tres.
 
-De con la cantidad de compuerta de AND, OR e inversores se propuso utilizar algunos componentes integrados como el 74HC04, tres del del 74HC08, uno del 74HC075 y otro del 74HC74. 
+En el caso de las compuertas AND se seleccionó el integrado 74HC08, que
+contiene cuatro compuertas AND de dos entradas cada un y como las ecuaciones de próximo estado contienen tres términos de tres
+variables, estos se implementaron en cascada utilizando dos
+compuertas AND de dos entradas, reutilizando las señales de salida
+LV, LA y AF como productos intermedios. En total se requieren nueve
+compuertas AND de dos entradas dado esta se va a utilizar tres
+integrados 74HC08.
+
+Para combinar los tres términos de cada ecuación de próximo estado
+se seleccionó el integrado 74HC4075, que contiene tres compuertas
+OR de tres entradas, de las cuales se emplean dos.
+
+Por último, para el registro de estado se utilizó un integrado
+74HC74, el cual contiene dos flip-flops tipo D, uno para almacenar
+$S_1$ y otro para $S_0$.
+
+Para verificar el correcto funcionamiento de toda esta lógica, se
+simuló con el programa Multisim como se puede observar en las
+Fig.~\ref{fig:fsm_S0}, Fig.~\ref{fig:fsm_S1}, Fig.~\ref{fig:fsm_S2}
+y Fig.~\ref{fig:fsm_S3}, donde cada figura representa un estado de
+la FSM, además se puede observar su correcto funcionamiento, ya que se activa cada señal
+y luz del LED tal como se definió inicialmente en el
+diagrama de la FSM y las tablas de verdad.
 
 
 
 
+%%%FMS S0
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_SO.png}
+    \caption{Simulación del estado SO}
+    \label{fig:fsm_S0}
+\end{figure}
+
+Se observa como en la imagen de la Fig.~\ref{fig:sim_SO} se enciende el led verde el cual tiene la señal de LV la cual debio activarse en este estado junto con la del PR, y la del TB = 0, ya que nadie a apretado el boto.
 
 
+%%%FMS S1
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_S1.png}
+    \caption{Simulación del estado S1}
+    \label{fig:fsm_S1}
+\end{figure}
+
+En el momento que alguien aprete el botón TB = 1 y se desactivan las señales pasadas y se altiva la LA y se mantiene la PR en rojo, pero ahora también se activa el TC para que cambie al siguiente estado.
+
+%%%FMS S2
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/FSM_S2.png}
+    \caption{Simulación del estado S2}
+    \label{fig:fsm_S2}
+\end{figure}
+
+En el tercer estado se activa la LR y la PR, además de una de las señales de audio AUD que va ha ser la encargada de iniciar el sonido para la señal auditiva de peatón.
+
+%%%FMS S3
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_S3.png}
+    \caption{Simulación del estado S3}
+    \label{fig:fsm_S3}
+\end{figure}
+
+Por ultimo en el cuarto estado se mantienen las mismas señales de semáforo peatonal y vehicular, pero se le agrega la ultima señal de alerta auditiva por lo que la señal AF se activa para indicarle al peatón que le quedan menos de 5 segundos.
+
+\subsubsection{Señalización del semáforo vehicular}
+Una vez creado y demostrado que el controlador funciona, se procedió
+a crear otra de las etapas relacionada con el controlador: las
+señalizaciones de las luces. Para esta parte se construyeron
+circuitos básicos con resistencias y un transistor 2N2222, los
+cuales van a estar funcionando de acuerdo al estado en que se
+encuentre el controlador.
+Así se demuestra en las siguientes figuras, donde se simulan los
+circuitos de las luces del semáforo vehicular que, al conectarle
+las señales de LV, LA y LR, logran activar los LED de igual forma
+como se definió en los LED de prueba. Su orden de secuencia se
+puede ver en las Fig.~\ref{fig:sim_v_verde},
+Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
+
+%%%FMS S1
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_verde.png}
+    \caption{Simulación del semáforo vehicular luz verde}
+    \label{fig:sim_v_verde}
+\end{figure}
 
 
+%%%FMS S2
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_amarillo.png}
+    \caption{Simulación del semáforo vehicular luz amarilla}
+    \label{fig:sim_v_amarillo}
+\end{figure}
+
+%%%FMS S3
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_v_rojo.png}
+    \caption{Simulación del semáforo vehicular luz roja}
+    \label{fig:sim_v_rojo}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Semaforo peatonal 
+
+\subsubsection{Señalización del semáforo peatonal}
+Lo mismo aplica para el circuito del semáforo peatonal, donde se
+definió un circuito sencillo con resistencias y un transistor
+2N2222. En este caso se conectaron dos circuitos idénticos en
+paralelo, donde cada uno simula el semáforo que va a haber en ambos
+lados de la calle, así se puede observar en las
+Fig.~\ref{fig:sim_p_rojo} y Fig.~\ref{fig:sim_p_verde}.
 
 
+\subsubsection{Señalización del del conteo regresivo}
+Para la señalización de la cuenta regresiva se puede observar en la figuras Fig.~\ref{fig:sim_display_20} que se va activar con la señal del AUD porque al final tanto el sonido como el display debe estar sincronizado a que se inicien en el mismo instante entonces en el momento que se activa AUD, se debe iniciar tanto la señal de la cuenta regresiva como la señal auditiva para el peatón. 
 
+
+%%%FMS S2
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_display_20.png}
+    \caption{Simulación de la cuenta regresiva inicial}
+    \label{fig:sim_display_20}
+\end{figure}
+
+Y en la segunda Fig.~\ref{fig:sim_display_5} se demuestra como esta debidamente sincronizados ya que en el momento que la señal AF se activa deben de faltar 5 segundos en el display.
+
+
+%%%FMS S3
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/sim_display-5.png}
+    \caption{Simulación de la cuenta regresiva en los últimos 5 segundo}
+    \label{fig:sim_display_5}
+\end{figure}
+
+Sobre el circuito que se va a utilizar tanto para la parte del contador como el del display se puede observar en la
+Fig.~\ref{fig:contador_display}, está compuesto por dos contadores
+4029BP configurados en modo descendente para las decenas y unidades
+respectivamente. Ambos contadores comparten un reloj de 1~Hz y sus
+salidas BCD se conectan a dos decodificadores 74LS47N, que a su vez
+controlan los displays de 7 segmentos de ánodo común. Para la
+detección del fin de cuenta se utilizaron compuertas AND e
+inversores 74LS04D que generan la señal $T_C$, la cual indica al
+controlador que el tiempo del estado actual ha finalizado. El
+conteo se habilita mediante un botón que se interrumpe cuando la
+FSM regresa al estado S0.
+%%%FMS S3
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{fig/fsm_sims/contador_display.png}
+    \caption{Simulación del circuito que se va a implementar para el contador y display}
+    \label{fig:contador_display}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Simulaciones}
@@ -524,7 +907,19 @@ De con la cantidad de compuerta de AND, OR e inversores se propuso utilizar algu
 Texas Instruments, ``SN74LS74A Dual D-Type Positive-Edge-Triggered Flip-Flops With Preset and Clear Datasheet,'' Dallas, TX, USA. [Online]. Available: \url{https://c1555f5ec9.clvaw-cdnwnd.com/34662fcf1f1e607c561442431023ac8e/200000751-dcad7dda84/74LS74%20Datasheet.pdf}
 \bibitem{electronicafp}
 Electrónica FP, ``555 Astable,'' YouTube, 2021. [Online]. Available: \url{https://www.youtube.com/watch?v=OKDaA-yE2QY}
-\bibitem{fulano}
+\bibitem{2n2222ds}
+Philips Semiconductors, ``2N2222 NPN Switching Transistors,'' datasheet, Philips Semiconductors, Eindhoven, Netherlands. [Online]. Available: \url{https://www.alldatasheet.com/html-pdf/15067/PHILIPS/2N2222/995/4/2N2222.html}. [Accessed: May 2026].
+
+\bibitem{tip31ds}
+ON Semiconductor, ``TIP31, TIP31A, TIP31B, TIP31C: NPN Epitaxial Silicon Transistor,'' datasheet, ON Semiconductor, Phoenix, AZ, USA. [Online]. Available: \url{https://www.alldatasheet.com/html-pdf/499213/ONSEMI/TIP31/214/1/TIP31.html}. [Accessed: May 2026].
+
+\bibitem{ne555art}
+Ariat Tech, ``What is the NE555?'' \textit{Ariat Tech Blog}, 2024. [Online]. Available: \url{https://www.ariat-tech.es/blog/what-is-the-ne555.html#t2}. [Accessed: May 2026].
+
+
+\bibitem{harris_digital}
+D. M. Harris and S. L. Harris, \textit{Digital Design and Computer
+Architecture}, 2nd ed. Morgan Kaufmann, 2013.
 
 
 \end{thebibliography}
