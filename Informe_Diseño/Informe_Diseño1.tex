@@ -228,7 +228,7 @@ Para lograr esto se diseñó un subsistema compuesto por tres etapas principales
 
 \subsubsection{Generación de Tono y Ritmo}
 
-Se utilizaron tres temporizadores NE555 configurados en modo astable. Esta configuración permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$, según la ecuación:
+Se utilizaron tres temporizadores NE555 configurados en modo astable \cite{ne555art}. Esta configuración permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$, según la ecuación:
 
 \begin{equation}
     f = \frac{1{,}44}{(R_a + 2R_b)\cdot C}
@@ -353,7 +353,7 @@ La señal del pin~3 del NE555 de tono tiene una amplitud de aproximadamente $5\,
 Antes de ingresar al amplificador, la señal del NE555 se atenúa mediante un divisor de tensión ($47\,\text{k}\Omega$ en serie, con capacitor de acople de $4{,}7\,\mu\text{F}$) para reducirla de $5\,\text{V}$ a aproximadamente $800$--$900\,\text{mV}$, evitando la saturación del transistor de la primera etapa.
 
 \textbf{Primera etapa: Emisor Común (2N2222).}
-La polarización se realiza con un divisor de tensión en la base para establecer el punto Q centrado en $V_{CE} \approx V_{CC}/2$. Los componentes se muestran en la Tabla~\ref{tab:emisor_comun}.
+La polarización se realiza con un divisor de tensión en la base para establecer el punto Q centrado en $V_{CE} \approx V_{CC}/2$ \cite{2n2222ds}. Los componentes se muestran en la Tabla~\ref{tab:emisor_comun}.
 
 \begin{table}[H]
 \centering
@@ -384,7 +384,7 @@ El punto de operación Q se calcula como:
 \end{align}
 
 \textbf{Segunda etapa: Seguidor de Emisor (TIP31C).}
-La configuración de colector común con TIP31C amplifica la corriente para excitar el parlante, presentando alta ganancia de corriente ($h_{FE} \geq 25$ con $I_C = 1\,\text{A}$ según datasheet) y baja impedancia de salida. Los componentes se listan en la Tabla~\ref{tab:seguidor_emisor}.
+La configuración de colector común con TIP31C amplifica la corriente para excitar el parlante, presentando alta ganancia de corriente ($h_{FE} \geq 25$ con $I_C = 1\,\text{A}$ según datasheet \cite{tip31ds}) y baja impedancia de salida. Los componentes se listan en la Tabla~\ref{tab:seguidor_emisor}.
 
 \begin{table}[H]
 \centering
@@ -410,6 +410,13 @@ Con $V_B = 2{,}5\,\text{V}$, la corriente y potencia entregadas al parlante resu
 \end{align}
 
 Este valor de potencia es suficiente para garantizar la audibilidad del semáforo peatonal en condiciones normales de uso.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig/Amplificador_Audio.png}
+    \caption{Esquemático del amplificador de dos etapas (emisor común + seguidor de emisor).}
+    \label{fig:amplificador}
+\end{figure}
 
 \begin{figure}[H]
     \centering
@@ -477,8 +484,14 @@ Al activar la señal de \textit{últimos 5~s} mediante el switch manual que simu
 Texas Instruments, ``SN74LS74A Dual D-Type Positive-Edge-Triggered Flip-Flops With Preset and Clear Datasheet,'' Dallas, TX, USA. [Online]. Available: \url{https://c1555f5ec9.clvaw-cdnwnd.com/34662fcf1f1e607c561442431023ac8e/200000751-dcad7dda84/74LS74%20Datasheet.pdf}
 \bibitem{electronicafp}
 Electrónica FP, ``555 Astable,'' YouTube, 2021. [Online]. Available: \url{https://www.youtube.com/watch?v=OKDaA-yE2QY}
-\bibitem{fulano}
+\bibitem{2n2222ds}
+Philips Semiconductors, ``2N2222 NPN Switching Transistors,'' datasheet, Philips Semiconductors, Eindhoven, Netherlands. [Online]. Available: \url{https://www.alldatasheet.com/html-pdf/15067/PHILIPS/2N2222/995/4/2N2222.html}. [Accessed: May 2026].
 
+\bibitem{tip31ds}
+ON Semiconductor, ``TIP31, TIP31A, TIP31B, TIP31C: NPN Epitaxial Silicon Transistor,'' datasheet, ON Semiconductor, Phoenix, AZ, USA. [Online]. Available: \url{https://www.alldatasheet.com/html-pdf/499213/ONSEMI/TIP31/214/1/TIP31.html}. [Accessed: May 2026].
+
+\bibitem{ne555art}
+Ariat Tech, ``What is the NE555?'' \textit{Ariat Tech Blog}, 2024. [Online]. Available: \url{https://www.ariat-tech.es/blog/what-is-the-ne555.html#t2}. [Accessed: May 2026].
 
 \end{thebibliography}
 
