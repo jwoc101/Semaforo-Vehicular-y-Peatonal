@@ -35,7 +35,7 @@ Jimena Vargas Vega
 \maketitle
 
 \begin{abstract}
-Resumen del proyecto.
+La presente propuesta abarca todos los subsistemas y sus especificaciones de manera teórica y simulada para el modelo de un semáforo vehicular con un cruce y dos semáforos peatonales. Se incluyen submodulos de alimentación, reloj interno, anti-rebote de botón, conteo, amplificación de audio con modulación en su frecuencia, y una máquina de estados finitos encargada de todas las configuraciones para los semáforos. 
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -45,7 +45,13 @@ Semáforo, FSM, temporización, lógica digital, electrónica analógica.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introducción}
 
-Texto de introducción.
+Los sistemas de semáforos representan una de las aplicaciones más importantes de los sistemas digitales y electrónicos en la vida cotidiana, ya que permiten regular el tránsito vehicular y peatonal de forma segura y ordenada. Los semáforos modernos incorporan mecanismos de temporización, control secuencial, señalización auditiva y manejo de entradas externas para mejorar la accesibilidad y la seguridad de los usuarios.
+
+En este proyecto se propone el diseño de un semáforo vehicular con cruce peatonal utilizando componentes de electrónica analógica y digital. El sistema integra distintos subsistemas encargados de la alimentación, generación de reloj, eliminación de rebotes en el botón peatonal, conteo regresivo, memoria de solicitudes, control mediante una máquina de estados finitos (FSM) y generación de señalización auditiva. Cada bloque fue diseñado considerando tanto el análisis teórico como su validación mediante simulación electrónica.
+
+La lógica principal del sistema se basa en una máquina de estados finitos que coordina las transiciones entre los diferentes modos de operación del semáforo. A partir de una solicitud peatonal válida, el sistema modifica las señales vehiculares y peatonales siguiendo tiempos preestablecidos, garantizando un flujo seguro y controlado del tránsito. Asimismo, se implementa un subsistema de audio capaz de variar la frecuencia de sus señales para advertir al peatón sobre el tiempo restante de cruce.
+
+El presente documento describe el funcionamiento y diseño de cada uno de los subsistemas implementados, incluyendo las ecuaciones utilizadas, criterios de selección de componentes y resultados obtenidos en simulación.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Propuesta de diseño}
@@ -965,8 +971,12 @@ FSM regresa al estado S0.
     \label{fig:contador_display}
 \end{figure}
 
+<<<<<<< HEAD
 
 
+=======
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+>>>>>>> e8b8abf859dff8dec9ddfdd805e77e75e64277ae
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}
 \bibitem{74ls74datasheet}
