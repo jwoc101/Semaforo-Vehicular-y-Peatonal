@@ -154,6 +154,18 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\booktabs\booktabs.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\tools\array.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\siunitx\siunitx.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\siunitx\siunitx.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\translations.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\translations.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\color.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\color.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Diseño1.aux
@@ -211,6 +223,9 @@ OUTPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\L
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Diseño1.out
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Diseño1.out
 OUTPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Diseño1.out
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmrc8t.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
@@ -224,6 +239,13 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy6.t
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmex10.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex8.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
+INPUT .\fig\Alimentacion.png
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
 INPUT C:\Users\Usuario\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
@@ -242,6 +264,8 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmri8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri8r.tfm
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
 INPUT .\fig\Bloque1_555.png
 INPUT .\fig\Bloque1_555.png
 INPUT .\fig\Bloque1_555.png
@@ -260,8 +284,13 @@ INPUT .\fig\Bloque2_Boton.png
 INPUT .\fig\Bloque2_Boton.png
 INPUT .\fig\Bloque2_Boton.png
 INPUT .\fig\Bloque2_Boton.png
-INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
-INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
+INPUT .\fig\Contador_FSM.png
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\courier\pcrr8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrr8r.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmrc8t.tfm
@@ -270,18 +299,18 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi9.t
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy9.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex9.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrr8t.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmrc8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
-INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrr8t.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\courier\pcrr8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\courier\pcrr8r.tfm
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
+INPUT .\fig\Bloque3_Memoria_Boton.png
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
 INPUT .\fig\Tono.png
 INPUT .\fig\Tono.png

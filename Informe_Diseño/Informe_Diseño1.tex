@@ -11,6 +11,7 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{siunitx}
 
 \geometry{margin=1in}
 
@@ -48,6 +49,17 @@ Texto de introducción.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Propuesta de diseño}
+
+\subsection{Subsistema de Alimentación}
+
+El voltaje del sistema será proporcionado en su totalidad por una fuente de \qty{120}{VAC}, de manera que el semáforo funcione al ser conectado a un tomacorrientes común. Esta señal pasará por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal de este transformador luego será procesada por un arreglo rectificador de 4 diodos 1N4007 con un capacitor de filtro de \qty{2000}{\mu F}. El subsistema hasta este punto, produce una señal promedio de \qty{15}{V}. Sin embargo, se planea utilizar un regulador de voltaje para estabilizar aún más la señal. La capacidad de este regulador será decidida a futuro, cuando los prototipos de los otros subsistemas indiquen con claridad cuál será el voltaje máximo requerido de la alimentación.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig/Alimentacion.png}
+    \caption{Subsistema de alimentación rectificador}
+    \label{fig:bloque1_555}
+\end{figure}
 
 \subsection{Subsistema de Control y Temporización}
 
@@ -131,6 +143,55 @@ Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito i
     \label{fig:bloque2_boton}
 \end{figure}
 
+<<<<<<< HEAD
+=======
+\subsubsection{Contador FSM}
+
+Se estimó que, al apretar el botón, hay un ciclo de 25 segundos antes de que la luz del semáforo vehicular regrese a la luz verde. Por lo tanto, se utilizaron 2 compuertas de contadores CD40192BE en cascodo para la cuenta regresiva, uno para las decenas, y el otro para las unidades. Estos se configuraron en modo de conteo por década, regresivo, con un valor pregrabado de 25 mediante el modo de asignación en paralelo. Para esto se tuvo que invertir la señal brindada por el botón. Una vez que el botón está activo, se deshabilita el modo paralelo y se habilita la habilidad de conteo mediante el pin CI. 
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig/Contador_FSM.png}
+    \caption{Circuito de contador para cambio de estado mediante TC}
+    \label{fig:Contador_FSM}
+\end{figure}
+
+Los contadores representan el valor del número en el que se encuentran actualmente en binario mediante sus cuatro salidas. Para establecer el pulso $T_C$, que va a avanzar a la FSM de estado, se utilizó lógica combinacional en las salidas de los contadores. Esto permite generar un pulso $T_C$ que dure exactamente un ciclo de reloj en los momentos deseados. Se quiere un pulso a los 5 segundos, luego otro 15 segundos después, y el final 5 segundos después. La siguiente tabla muestra el estado de la máquina y los contadores durante los momentos que se desea que la salida de $T_C$ sea en alto durante la cuenta de 25 segundos. Los bits del contador de unidades se designan $U_3$, $U_2$, $U_1$, y $U_0$, de más a menos significativos. De manera similar, los de las decenas se asignan $D_1$, y $D_0$.
+
+\begin{table}[H]
+    \centering
+    \caption{Estado del contador durante tiempos de cambio}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+        \hline
+        Cuenta & Estado Actual & Estado Siguiente & $D_1$ & $D_0$ & $U_3$ & $U_2$ & $U_1$ & $U_0$ \\
+        \hline
+        \qty{21}{s} & $S1$ & $S2$ & 1 & 0 & 0 & 0 & 0 & 1\\
+        \hline
+        \qty{6}{s} & $S2$ & $S3$ & 0 & 0 & 0 & 1 & 1 & 0\\
+        \hline
+        \qty{1}{s} & $S3$ & $S0$ & 0 & 0 & 0 & 0 & 0 & 1\\
+        \hline
+    \end{tabular}
+    \label{tab:Contador_FSM_Cambios}
+\end{table}
+
+La Tabla \ref{tab:Contador_FSM_Cambios} permitió derivar las siguientes ecuaciónes de lógicas:
+
+\begin{equation}
+T_C = (\bar{D_0} \bar{U_3} \bar{U_2} \bar{U_1} U_0) + (\bar{D_0} \bar{U_3} U_2 U_1 \bar{U_0})
+\label{eq:TCLogica1}
+\end{equation}
+
+\begin{equation}
+T_C = \bar{D_0} \bar{U_3} (\bar{U_2} \bar{U_1} U_0 + U_2 U_1 \bar{U_0})
+\label{eq:TCLogica2}
+\end{equation}
+
+El diseño actual utiliza compuertas AND e inversores para seguir el modelo de la ecuación \ref{eq:TCLogica1}. Sin embargo, el diseño de esta lógica combinacional está sujeto a cambios dependiendo de los componentes disponibles a la hora de diseñar.
+
+Una vez que se llegue al último estado $S_0$, la FSM se encargará de abrir el corto hecho por el botón, representado por el switch en la Figura \ref{fig:Contador_FSM}. Este cambio regresará al contador a su estado inicial, con un valor de 25 precargado y la habilidad de conteo deshabilidata.
+>>>>>>> 4657982f74775950a1a1c5f869940c16685f2f0f
 
 \subsubsection{Memoria del botón}
 
