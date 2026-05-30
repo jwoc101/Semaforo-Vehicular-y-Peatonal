@@ -149,8 +149,6 @@ Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito i
     \label{fig:bloque2_boton}
 \end{figure}
 
-<<<<<<< HEAD
-=======
 \subsubsection{Contador FSM}
 
 Se estimó que, al apretar el botón, hay un ciclo de 25 segundos antes de que la luz del semáforo vehicular regrese a la luz verde. Por lo tanto, se utilizaron 2 compuertas de contadores CD40192BE en cascodo para la cuenta regresiva, uno para las decenas, y el otro para las unidades. Estos se configuraron en modo de conteo por década, regresivo, con un valor pregrabado de 25 mediante el modo de asignación en paralelo. Para esto se tuvo que invertir la señal brindada por el botón. Una vez que el botón está activo, se deshabilita el modo paralelo y se habilita la habilidad de conteo mediante el pin CI. 
@@ -197,7 +195,6 @@ T_C = \bar{D_0} \bar{U_3} (\bar{U_2} \bar{U_1} U_0 + U_2 U_1 \bar{U_0})
 El diseño actual utiliza compuertas AND e inversores para seguir el modelo de la ecuación \ref{eq:TCLogica1}. Sin embargo, el diseño de esta lógica combinacional está sujeto a cambios dependiendo de los componentes disponibles a la hora de diseñar.
 
 Una vez que se llegue al último estado $S_0$, la FSM se encargará de abrir el corto hecho por el botón, representado por el switch en la Figura \ref{fig:Contador_FSM}. Este cambio regresará al contador a su estado inicial, con un valor de 25 precargado y la habilidad de conteo deshabilidata.
->>>>>>> 4657982f74775950a1a1c5f869940c16685f2f0f
 
 \subsubsection{Memoria del botón}
 
@@ -971,12 +968,6 @@ FSM regresa al estado S0.
     \label{fig:contador_display}
 \end{figure}
 
-<<<<<<< HEAD
-
-
-=======
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
->>>>>>> e8b8abf859dff8dec9ddfdd805e77e75e64277ae
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}
 \bibitem{74ls74datasheet}
