@@ -1,4 +1,4 @@
-\documentclass[12pt,onecolumn]{IEEEtran}
+﻿\documentclass[12pt,onecolumn]{IEEEtran}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -35,7 +35,7 @@ Jimena Vargas Vega
 \maketitle
 
 \begin{abstract}
-La presente propuesta abarca todos los subsistemas y sus especificaciones de manera teórica y simulada para el modelo de un semáforo vehicular con un cruce y dos semáforos peatonales. Se incluyen submodulos de alimentación, reloj interno, anti-rebote de botón, conteo, amplificación de audio con modulación en su frecuencia, y una máquina de estados finitos encargada de todas las configuraciones para los semáforos. 
+En este trabajo se presenta el diseño, simulación e implementación física de un sistema de semáforo vehicular y peatonal controlado completamente mediante lógica digital discreta, sin el uso de microcontroladores ni FPGAs. El sistema integra seis subsistemas principales: alimentación rectificada regulada a 5~V, generación de reloj de 1~Hz con temporizador NE555, botón peatonal con antirrebote RC y Schmitt Trigger, contador regresivo BCD de 25 segundos con detección combinacional de los instantes de cambio de estado, máquina de estados finitos (FSM) de cuatro estados implementada con flip-flops 74HC74 y compuertas lógicas, y un subsistema de audio con tres osciladores NE555, selección de ritmo por switch analógico TC4066 y amplificación en dos etapas (2N2222 + TIP31C) para excitar un parlante de $8\,\Omega$. Todos los subsistemas fueron verificados en simulación con Multisim y posteriormente construidos e integrados sobre protoboard. Los resultados obtenidos confirman el correcto funcionamiento de la secuencia de estados, la temporización, la señalización auditiva con cambio automático de ritmo, y la visualización del conteo regresivo en displays de siete segmentos.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -45,13 +45,13 @@ Semáforo, FSM, temporización, lógica digital, electrónica analógica.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introducción}
 
-Los sistemas de semáforos representan una de las aplicaciones más importantes de los sistemas digitales y electrónicos en la vida cotidiana, ya que permiten regular el tránsito vehicular y peatonal de forma segura y ordenada. Los semáforos modernos incorporan mecanismos de temporización, control secuencial, señalización auditiva y manejo de entradas externas para mejorar la accesibilidad y la seguridad de los usuarios.
+Los sistemas de semáforos son una de las aplicaciones más visibles de la electrónica digital en la infraestructura urbana. Más allá de su función aparente, integran múltiples subsistemas que deben coordinarse con precisión: temporización, secuenciación de estados, detección de eventos externos y señalización tanto visual como auditiva. Su diseño representa un caso de estudio completo en sistemas digitales, ya que exige soluciones a problemas reales como el rebote mecánico de pulsadores, la generación de señales de reloj estables y la amplificación de audio para condiciones de uso en exteriores.
 
-En este proyecto se propone el diseño de un semáforo vehicular con cruce peatonal utilizando componentes de electrónica analógica y digital. El sistema integra distintos subsistemas encargados de la alimentación, generación de reloj, eliminación de rebotes en el botón peatonal, conteo regresivo, memoria de solicitudes, control mediante una máquina de estados finitos (FSM) y generación de señalización auditiva. Cada bloque fue diseñado considerando tanto el análisis teórico como su validación mediante simulación electrónica.
+El presente proyecto corresponde al diseño e implementación de un semáforo vehicular con cruce peatonal desarrollado como proyecto final del curso EL3215 Laboratorio de Electrónica Analógica (IS2026, Grupo~8). La restricción principal del proyecto establece que el sistema debe implementarse exclusivamente con componentes de lógica digital discreta y electrónica analógica, sin el uso de microcontroladores, FPGAs ni ningún dispositivo programable. Esta restricción obliga a resolver cada función del sistema a nivel de compuertas, flip-flops y componentes analógicos básicos, lo que constituye en sí mismo el objetivo pedagógico central del proyecto.
 
-La lógica principal del sistema se basa en una máquina de estados finitos que coordina las transiciones entre los diferentes modos de operación del semáforo. A partir de una solicitud peatonal válida, el sistema modifica las señales vehiculares y peatonales siguiendo tiempos preestablecidos, garantizando un flujo seguro y controlado del tránsito. Asimismo, se implementa un subsistema de audio capaz de variar la frecuencia de sus señales para advertir al peatón sobre el tiempo restante de cruce.
+El sistema diseñado opera con cuatro estados definidos por una máquina de estados finitos: estado inicial con semáforo vehicular en verde ($S_0$), transición con luz amarilla vehicular ($S_1$), paso peatonal activo ($S_2$) y advertencia de cierre de paso con ritmo de audio acelerado ($S_3$). La transición entre estados es controlada por un contador regresivo BCD de 25~s, cuya lógica combinacional genera pulsos en los instantes precisos de cambio. La solicitud de cruce peatonal se introduce mediante un botón con circuito antirrebote y queda memorizada en un flip-flop hasta que la FSM la atiende.
 
-El presente documento describe el funcionamiento y diseño de cada uno de los subsistemas implementados, incluyendo las ecuaciones utilizadas, criterios de selección de componentes y resultados obtenidos en simulación.
+El presente documento describe el diseño, análisis teórico, simulación e implementación en protoboard de cada subsistema, incluyendo los valores finales de componentes utilizados en el prototipo físico.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Propuesta de diseño}
@@ -62,7 +62,7 @@ El voltaje del sistema será proporcionado en su totalidad por una fuente de \qt
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{fig/Alimentacion.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Subsistema de alimentación rectificador}
     \label{fig:bloque1_555}
 \end{figure}
@@ -109,7 +109,7 @@ Este valor se considera adecuado para la propuesta de diseño, ya que se encuent
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{fig/Bloque1_555.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Circuito del reloj de aproximadamente 1 Hz implementado con temporizador 555 en configuración astable.}
     \label{fig:bloque1_555}
 \end{figure}
@@ -144,7 +144,7 @@ Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito i
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{fig/Bloque2_Boton.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Circuito de entrada del botón peatonal con red RC y compuertas Schmitt Trigger.}
     \label{fig:bloque2_boton}
 \end{figure}
@@ -230,7 +230,7 @@ En la Fig. \ref{fig:bloque3_memoria_boton} se muestra la implementación complet
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{fig/Bloque3_Memoria_Boton.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Circuito de validación y memoria de la solicitud peatonal.}
     \label{fig:bloque3_memoria_boton}
 \end{figure}
@@ -282,12 +282,12 @@ El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{fig/Tono.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Circuito del NE555 de tono ($\approx 351\,\text{Hz}$).}
     \label{fig:tono}
 \end{figure}
 
-\textbf{NE555 de Ritmo Lento ($\approx 2\,\text{Hz}$).}
+\textbf{NE555 de Ritmo Lento ($\approx 5{,}7\,\text{Hz}$).}
 Este temporizador genera la cadencia de bips durante la fase normal del paso peatonal. Para lograr una pausa notablemente más larga que el bip, se incorporó un diodo 1N4149 en paralelo con $R_b$, separando los tiempos de carga y descarga del capacitor:
 
 \begin{align}
@@ -305,9 +305,9 @@ Los valores seleccionados se muestran en la Tabla~\ref{tab:555lento}.
 \toprule
 \textbf{Componente} & \textbf{Valor} & \textbf{Función} \\
 \midrule
-$R_a$  & $1\,\text{k}\Omega$   & Duración del bip ($\approx 7\,\text{ms}$) \\
-$R_b$  & $68\,\text{k}\Omega$  & Duración de la pausa ($\approx 470\,\text{ms}$) \\
-$C$    & $10\,\mu\text{F}$     & Capacitor de temporización \\
+$R_a$  & $4{,}7\,\text{k}\Omega$ & Duración del bip ($\approx 72\,\text{ms}$) \\
+$R_b$  & $6{,}8\,\text{k}\Omega$ & Duración de la pausa ($\approx 104\,\text{ms}$) \\
+$C$    & $22\,\mu\text{F}$       & Capacitor de temporización \\
 Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 \bottomrule
 \end{tabular}
@@ -317,13 +317,13 @@ El pin~4 (RST) recibe la señal de \textit{paso peatonal habilitado} proveniente
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{fig/Ritmo_Lento.png}
-    \caption{Circuito del NE555 de ritmo lento ($\approx 2\,\text{Hz}$).}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \caption{Circuito del NE555 de ritmo lento ($\approx 5{,}7\,\text{Hz}$).}
     \label{fig:ritmo_lento}
 \end{figure}
 
-\textbf{NE555 de Ritmo Rápido ($\approx 6\,\text{Hz}$).}
-Este temporizador genera la cadencia acelerada durante los últimos cinco segundos del paso peatonal, comunicando urgencia al peatón. Opera con los mismos principios que el de ritmo lento pero con $R_b$ reducido para aumentar la frecuencia. Los valores se muestran en la Tabla~\ref{tab:555rapido}.
+\textbf{NE555 de Ritmo Rápido ($\approx 14{,}6\,\text{Hz}$).}
+Este temporizador genera la cadencia acelerada durante los últimos cinco segundos del paso peatonal, comunicando urgencia al peatón. Opera con los mismos principios que el de ritmo lento pero con $C$ reducido para aumentar la frecuencia. Los valores se muestran en la Tabla~\ref{tab:555rapido}.
 
 \begin{table}[H]
 \centering
@@ -333,9 +333,9 @@ Este temporizador genera la cadencia acelerada durante los últimos cinco segund
 \toprule
 \textbf{Componente} & \textbf{Valor} & \textbf{Función} \\
 \midrule
-$R_a$  & $1\,\text{k}\Omega$   & Duración del bip ($\approx 7\,\text{ms}$) \\
-$R_b$  & $20\,\text{k}\Omega$  & Duración de la pausa ($\approx 139\,\text{ms}$) \\
-$C$    & $10\,\mu\text{F}$     & Capacitor de temporización \\
+$R_a$  & $1\,\text{k}\Omega$    & Duración del bip ($\approx 3\,\text{ms}$) \\
+$R_b$  & $20\,\text{k}\Omega$  & Duración de la pausa ($\approx 65\,\text{ms}$) \\
+$C$    & $4{,}7\,\mu\text{F}$  & Capacitor de temporización \\
 Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 \bottomrule
 \end{tabular}
@@ -343,8 +343,8 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{fig/Ritmo_Rapido.png}
-    \caption{Circuito del NE555 de ritmo rápido ($\approx 6\,\text{Hz}$).}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \caption{Circuito del NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$).}
     \label{fig:ritmo_rapido}
 \end{figure}
 
@@ -428,14 +428,14 @@ Este valor de potencia es suficiente para garantizar la audibilidad del semáfor
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{fig/Amplificador_Audio.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Esquemático del amplificador de dos etapas (emisor común + seguidor de emisor).}
     \label{fig:amplificador}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig/Subsistema_AUDIO.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Esquemático completo del subsistema de audio en Multisim.}
     \label{fig:subsistema_audio}
 \end{figure}
@@ -496,7 +496,7 @@ Fig.~\ref{fig:fsm}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Diagrama de la máquina de estados del semáforo.}
     \label{fig:fsm}
 \end{figure}
@@ -734,7 +734,7 @@ AF requieren cada una su propia compuerta AND de dos entradas, una vez definido 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_dibujo.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Diagrama del circuito de la máquina de estados dibujado.}
     \label{fig:fsm_dibujado}
 \end{figure}
@@ -773,7 +773,7 @@ diagrama de la FSM y las tablas de verdad.
 %%%FMS S0
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_SO.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del estado SO}
     \label{fig:fsm_S0}
 \end{figure}
@@ -784,7 +784,7 @@ Se observa como en la imagen de la Fig.~\ref{fig:sim_SO} se enciende el led verd
 %%%FMS S1
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_S1.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del estado S1}
     \label{fig:fsm_S1}
 \end{figure}
@@ -794,7 +794,7 @@ En el momento que alguien aprete el botón TB = 1 y se desactivan las señales p
 %%%FMS S2
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/FSM_S2.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del estado S2}
     \label{fig:fsm_S2}
 \end{figure}
@@ -804,7 +804,7 @@ En el tercer estado se activa la LR y la PR, además de una de las señales de a
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/fsm_S3.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del estado S3}
     \label{fig:fsm_S3}
 \end{figure}
@@ -828,7 +828,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S1
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_verde.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del semáforo vehicular luz verde}
     \label{fig:sim_v_verde}
 \end{figure}
@@ -837,7 +837,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S2
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_amarillo.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del semáforo vehicular luz amarilla}
     \label{fig:sim_v_amarillo}
 \end{figure}
@@ -845,7 +845,7 @@ Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_v_rojo.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del semáforo vehicular luz roja}
     \label{fig:sim_v_rojo}
 \end{figure}
@@ -865,7 +865,7 @@ Fig.~\ref{fig:sim_p_rojo} y Fig.~\ref{fig:sim_p_verde}.
 %%%FMS S2
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_p_rojo.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del semáforo peatonal luz roja}
     \label{fig:sim_p_rojo}
 \end{figure}
@@ -873,7 +873,7 @@ Fig.~\ref{fig:sim_p_rojo} y Fig.~\ref{fig:sim_p_verde}.
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_p_verde.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del semáforo peatonal luz verde}
     \label{fig:sim_p_verde}
 \end{figure}
@@ -886,7 +886,7 @@ Para la señalización de la cuenta regresiva se puede observar en la figuras Fi
 %%%Display 20s
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_display_20.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación de la cuenta regresiva inicial}
     \label{fig:sim_display_20}
 \end{figure}
@@ -898,7 +898,7 @@ activa deben de faltar 5 segundos en el display.
 %%%Display 5s
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{fig/fsm_sims/sim_display-5.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación de la cuenta regresiva en los últimos 5 segundos}
     \label{fig:sim_display_5}
 \end{figure}
@@ -917,7 +917,7 @@ FSM regresa al estado S0.
 %%%FMS S3
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\columnwidth]{fig/fsm_sims/contador_display.png}
+    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
     \caption{Simulación del circuito que se va a implementar para el contador y display}
     \label{fig:contador_display}
 \end{figure}
