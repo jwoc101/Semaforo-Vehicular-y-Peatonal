@@ -55,11 +55,10 @@ El sistema diseñado opera con cuatro estados definidos por una máquina de esta
 El presente documento describe el diseño, análisis teórico, simulación e implementación en protoboard de cada subsistema, incluyendo los valores finales de componentes utilizados en el prototipo físico.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Propuesta de diseño}
 
-\subsection{Subsistema de Alimentación}
+\section{Subsistema de Alimentación}
 
-El voltaje del sistema será proporcionado en su totalidad por una fuente de \qty{120}{VAC}, de manera que el semáforo funcione al ser conectado a un tomacorrientes común. Esta señal pasará por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal de este transformador luego será procesada por un arreglo rectificador de 4 diodos 1N4007 con un capacitor de filtro de \qty{2000}{\mu F}. El subsistema hasta este punto, produce una señal promedio de \qty{15}{V}. Sin embargo, se planea utilizar un regulador de voltaje para estabilizar aún más la señal. La capacidad de este regulador será decidida a futuro, cuando los prototipos de los otros subsistemas indiquen con claridad cuál será el voltaje máximo requerido de la alimentación.
+El voltaje del sistema será proporcionado en su totalidad por una fuente de \qty{120}{VAC}, de manera que el semáforo funcione al ser conectado a un tomacorrientes común. Esta señal pasará por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal de este transformador luego será procesada por un arreglo rectificador de 4 diodos 1N4007 con un capacitor de filtro de \qty{4700}{\mu F}. El subsistema hasta este punto, produce una señal promedio de \qty{15}{V}. Para obtener la señal final en DC, se utilizaron dos reguladores de voltaje LM7805 de \qty{5}{V} en paralelo. Uno de estos reguladores es responsable de la alimentación del subsistema de audio, mientras que el otro actua como fuente para los subsistemas restantes.
 
 \begin{figure}[H]
     \centering
@@ -68,15 +67,18 @@ El voltaje del sistema será proporcionado en su totalidad por una fuente de \qt
     \label{fig:bloque1_555}
 \end{figure}
 
-\subsection{Subsistema de Control y Temporización}
+Además, para ambos reguladores se conectó un capacitor de \qty{1}{\mu F} entre su entrada y tierra. Esto se llevó a cabo para estabilizar el voltaje de entrada que ve el regulador ante ruido que puede aparecer en el circuito rectificador. Además, protege al regulador de caídas en el voltaje de entrada debido a cambios abruptos en la corriente utilizada por el sistema. Asimismo, un capacitor de \qty{0.1}{\mu F} entre su salida y tierra por las mismas razones. \cite{7805datasheet}
 
-\subsubsection{Reloj con Temporizador 555}
+La decisión de utilizar dos reguladores en paralelo emergió tras observar muy altas temperaturas en el regulador cuando solo se utilizó uno para la alimentación del sistema completo. El 7805 tiene una corriente máxima de \qty{1.5}{A} \cite{7805datasheet}. Después de una serie de mediciones, se vió que el subsistema de audio requería alrededor de \qty{800}{mA}, mientras que el resto de los subsistemas juntos requeren alrededor de \qty{600}{mA}. Por motivos de seguridad y preservación del sistema, se decidió entonces utilizar un regulador exclusivamente para la alimentación del subsistema de audio, cuya señal fue denotada $V_{CC}$. La señal del regulador responsable por la alimentación del resto de subsistemas se denotó $V_S$.
 
-Para el funcionamiento adecuado del sistema de control, y en general del proyecto, se requiere una señal de reloj que permita establecer una referencia de tiempo para los contadores y la máquina de estados. Por esta razón, se diseñó un circuito basado en el temporizador 555 en configuración astable, ya que esta configuración permite generar una señal cuadrada periódica sin necesidad de una señal externa de disparo.
+\section{Subsistema de Temporización}
+
+Para el funcionamiento adecuado del sistema de control, y en general del proyecto, se requiere una señal de reloj que permita establecer una referencia de tiempo para los contadores y la máquina de estados. Por esta razón, se diseñó un circuito basado en el temporizador NE555 en configuración astable, ya que esta configuración permite generar una señal cuadrada periódica sin necesidad de una señal externa de disparo.
 
 La frecuencia de oscilación del 555 en modo astable se aproxima mediante \cite{electronicafp}:
 
 \begin{equation}
+	\label{eq:NE555}
     f = \frac{1.44}{(R_A + 2R_B)C}
 \end{equation}
 
@@ -115,144 +117,24 @@ Este valor se considera adecuado para la propuesta de diseño, ya que se encuent
     \label{fig:bloque1_555}
 \end{figure}
 
-\subsubsection{Botón y Antirrebote}
-El botón peatonal funciona como la entrada principal externa hacia el sistema de control. Básicamente su activación acciona toda la lógica de ambos semáforos y sistemas asociados por medio de la máquina de estados. Sin embargo, los pulsadores mecánicos pueden generar rebotes no deseados durante su accionar, provocando así múltiples transiciones rápidas aunque solo se haya presionado el botón una vez. Para evitar que la máquina de estados interprete una sola pulsación como varias solicitudes, se implementó un circuito de antirrebote.
+\section{Subsistema de Despliegue}
 
-El circuito utiliza una red RC formada por una resistencia de pull-down y un capacitor conectado a tierra. Esta red suaviza las variaciones rápidas producidas por el rebote mecánico del pulsador. Los valores seleccionados fueron:
+Este subsistema opera en base a dos contadores CMOS CD4029 conectados en cascodo, uno encargado de contar decenas, y el otro unidades. Ambos contadores se encuentran en modo de contado por década, de modo regresivo, y conectados a la señal de reloj del subsistema de temporización. El contador de decenas se tiene preestablecido empezar en 2, y el de unidades en 5, de modo que se inicie una cuenta regresiva a partir de 25 cuando se habilita el pin de \textit{Preset Enable} de ambos contadores.
 
-\begin{itemize}
-    \item $R = 10~k\Omega$
-    \item $C = 100~nF$
-\end{itemize}
-
-La constante de tiempo de la red RC se calcula como:
-
-\begin{equation}
-    \tau = RC
-\end{equation}
-
-Sustituyendo los valores utilizados:
-
-\begin{equation}
-    \tau = (10k\Omega)(100nF)
-\end{equation}
-
-\begin{equation}
-    \tau = 1~ms
-\end{equation}
-
-Posteriormente, la señal pasa por dos inversores Schmitt Trigger del circuito integrado 74LS14D (Figura 2). El primer inversor convierte la señal suavizada en una señal digital estable, mientras que el segundo inversor se utiliza para recuperar la polaridad original. De esta forma, la salida final, denominada \texttt{BTN\_CLEAN}, toma un valor lógico alto cuando el botón es presionado y un valor lógico bajo cuando se encuentra liberado.  En resumen, este módulo genera una salida llamada \texttt{BTN\_CLEAN} que será usada a partir de ahora para referirse a la señal limpia del botón.
-
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Circuito de entrada del botón peatonal con red RC y compuertas Schmitt Trigger.}
-    \label{fig:bloque2_boton}
-\end{figure}
+Las salidas del contador de las decenas, del bit menos significativo al bit más significativo, se definen $D_0$, $D_1$, $D_2$, y $D_3$. Las salidas del contador de unidades se definen $U_0$, $U_1$, $U_2$, y $U_3$, de la misma manera. Ambos contadores tienen un decodificador CD4511B respectivo, al cuál las salidas del contador están conectadas. Ambos decodificadores están conectados a un display de 7 segmentos de cátodo común correspondiente. El cátodo de estos está conectado a tierra mediante una resistencia de \qty{330}{\Omega} para limitar la corriente. 
 
 
-\subsubsection{Memoria del botón}
-
-La memoria del botón surge a partir de una consideración importante del sistema: ¿qué ocurre si el botón peatonal se presiona mientras el semáforo ya se encuentra en media secuencia? Para evitar que una nueva pulsación altere el funcionamiento del sistema en la máquina de estados, se decidió que el botón solamente debe ser aceptado cuando la misma s se encuentra en el estado inicial $S0$, ya que solamente aquí habría una necesidad real de cruzar.
-
-La codificación de estados considerada para la máquina de estados es la siguiente:
-
-\begin{table}[H]
-    \centering
-    \caption{Codificación de estados de la FSM.}
-    \begin{tabular}{|c|c|c|}
-        \hline
-        Estado & $Q1$ & $Q0$ \\
-        \hline
-        $S0$ & 0 & 0 \\
-        \hline
-        $S1$ & 0 & 1 \\
-        \hline
-        $S2$ & 1 & 0 \\
-        \hline
-        $S3$ & 1 & 1 \\
-        \hline
-    \end{tabular}
-    \label{tab:codificacion_fsm}
-\end{table}
-
-Como el único estado en el que se desea aceptar el botón es $S0$, se implementó una señal de habilitación llamada \texttt{S0\_ACTIVE}. Esta señal debe ser igual a 1 únicamente cuando $Q1=0$ y $Q0=0$. Para lograr esto se utilizó una compuerta NOR 74LS02, ya que:
-
-\begin{equation}
-    S0\_ACTIVE = \overline{Q1 + Q0}
-\end{equation}
-
-De esta forma, cuando el sistema se encuentra en $S0$, la salida de la NOR se activa. En cualquier otro estado, la señal permanece en cero.
-
-Luego, la señal \texttt{S0\_ACTIVE} se combina con la salida limpia del botón (\texttt{BTN\_CLEAN}). Esta combinación genera la señal \texttt{REQUEST\_VALID}, la cual indica que existe una solicitud peatonal válida:
-
-\begin{equation}
-    REQUEST\_VALID = S0\_ACTIVE \cdot BTN\_CLEAN
-\end{equation}
-
-Para implementar esta operación lógica se utilizó una compuerta AND 74LS08. La Tabla \ref{tab:request_valid} muestra el comportamiento esperado cuando el botón se encuentra presionado, es decir, cuando \texttt{BTN\_CLEAN = 1}.
-
-\begin{table}[H]
-    \centering
-    \caption{Validación del botón peatonal según el estado actual.}
-    \begin{tabular}{|c|c|c|c|c|c|}
-        \hline
-        $Q1$ & $Q0$ & Estado & \texttt{S0\_ACTIVE} & \texttt{BTN\_CLEAN} & \texttt{REQUEST\_VALID} \\
-        \hline
-        0 & 0 & $S0$ & 1 & 1 & 1 \\
-        \hline
-        0 & 1 & $S1$ & 0 & 1 & 0 \\
-        \hline
-        1 & 0 & $S2$ & 0 & 1 & 0 \\
-        \hline
-        1 & 1 & $S3$ & 0 & 1 & 0 \\
-        \hline
-    \end{tabular}
-    \label{tab:request_valid}
-\end{table}
-
-En esta tabla, $Q1$ y $Q0$ representan los bits del estado actual de la FSM. La señal \texttt{S0\_ACTIVE} confirma que el sistema está en el estado inicial. La señal \texttt{BTN\_CLEAN} corresponde a la salida del circuito antirrebote del botón peatonal. Finalmente, \texttt{REQUEST\_VALID} indica que la solicitud debe ser aceptada por el sistema.
-
-Una vez generada la señal \texttt{REQUEST\_VALID}, es necesario almacenarla, ya que se podría soltar el botón antes de que la FSM procese la solicitud. Para esto se utilizó un flip-flop D 74LS74. La entrada $D$ se conectó a nivel lógico alto, mientras que la señal \texttt{REQUEST\_VALID} se conectó al reloj del flip-flop. De esta forma, cuando ocurre un flanco positivo en \texttt{REQUEST\_VALID}, el flip-flop almacena un 1 en su salida $Q$.
-
-La salida $Q$ del flip-flop se denomina $TB$. Esta señal permanece en 1 aunque el botón sea liberado, indicando que existe una solicitud peatonal pendiente. Posteriormente, esta memoria se reinicia mediante la señal de reset proveniente de la FSM, haciendo que $TB$ vuelva a cero una vez que la solicitud ha sido atendida.
-
-La configuración utilizada para el 74LS74 fue la siguiente \cite{74ls74datasheet}:
-
-\begin{itemize}
-    \item Entrada $D$ conectada a $5~V$.
-    \item Entrada de reloj conectada a \texttt{REQUEST\_VALID}.
-    \item Salida $Q$ utilizada como $TB$.
-    \item Entrada \texttt{CLR} conectada a la señal de reinicio de la FSM.
-    \item Entrada \texttt{PR} conectada a nivel lógico alto para mantenerla inactiva.
-\end{itemize}
-
-En la Fig. \ref{fig:bloque3_memoria_boton} se muestra la implementación completa del bloque de validación y memoria del botón peatonal.
-
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Circuito de validación y memoria de la solicitud peatonal.}
-    \label{fig:bloque3_memoria_boton}
-\end{figure}
-
-\subsection{Subsistema Audio}
+\section{Subsistema de Audio}
 
 El subsistema de audio tiene como objetivo generar señalización auditiva para el semáforo peatonal. Según las especificaciones del proyecto, el sistema debe producir un sonido periódico mientras el paso peatonal está habilitado, y aumentar la frecuencia de ese sonido durante los últimos cinco segundos antes del cambio al estado de detención.
 
 Para lograr esto se diseñó un subsistema compuesto por tres etapas principales: generación de tono y ritmo mediante temporizadores NE555, selección lógica del ritmo adecuado según la fase del semáforo, y amplificación de la señal para excitar un parlante de $8\,\Omega$.
 
-\subsubsection{Generación de Tono y Ritmo}
+\subsection{Generación de Tono y Ritmo}
 
-Se utilizaron tres temporizadores NE555 configurados en modo astable \cite{ne555art}. Esta configuración permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$, según la ecuación:
-
-\begin{equation}
-    f = \frac{1{,}44}{(R_a + 2R_b)\cdot C}
-    \label{eq:555audio}
-\end{equation}
-
-Los tres temporizadores cumplen funciones distintas: uno genera el tono audible, uno genera el ritmo lento para el paso peatonal normal, y uno genera el ritmo rápido para los últimos cinco segundos.
-
+Se utilizaron tres temporizadores NE555 configurados en modo astable~\cite{ne555art}. Esta es la misma configuración que la del 555 en el subsistema de temporización, y permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$. Los tres temporizadores cumplen funciones distintas: uno genera el tono audible, uno genera el ritmo lento para el paso peatonal normal, y uno genera el ritmo rápido para los últimos cinco segundos.
+\\
+\\
 \textbf{NE555 de Tono ($\approx 300\,\text{Hz}$).}
 Este temporizador genera la frecuencia audible que percibe el peatón. Su salida por el pin~3 produce una onda cuadrada de aproximadamente $300\,\text{Hz}$, representativa de los tonos utilizados en semáforos peatonales reales. Los valores de componentes seleccionados se muestran en la Tabla~\ref{tab:555tono}.
 
@@ -271,7 +153,7 @@ $C$ timing  & $100\,\text{nF}$      & Capacitor de temporización \\
 \end{tabular}
 \end{table}
 
-Aplicando la ecuación~\eqref{eq:555audio}:
+Aplicando la ecuación~\eqref{eq:NE555}:
 
 \begin{equation}
     f = \frac{1{,}44}{(1\,\text{k} + 2\cdot 20\,\text{k})\cdot 100\,\text{nF}}
@@ -314,7 +196,7 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 \end{tabular}
 \end{table}
 
-El pin~4 (RST) recibe la señal de \textit{paso peatonal habilitado} proveniente de la máquina de estados. Mientras esa señal está en HIGH, el temporizador oscila y genera el ritmo; cuando baja a LOW, el temporizador se detiene y el audio se apaga.
+El pin~4 (RST) recibe la señal $AUD$, proveniente de la máquina de estados. Mientras esa señal está en HIGH, el temporizador oscila y genera el ritmo; cuando baja a LOW, el temporizador se detiene y el audio se apaga.
 
 \begin{figure}[H]
     \centering
@@ -349,7 +231,7 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
     \label{fig:ritmo_rapido}
 \end{figure}
 
-\subsubsection{Selección Lógica del Ritmo}
+\subsection{Selección Lógica del Ritmo}
 
 Para que el subsistema de audio cambie automáticamente entre ritmo lento y ritmo rápido según la fase del semáforo, se implementó un bloque de selección lógica compuesto por un switch analógico TC4066BP y un inversor 74LS14N.
 
@@ -362,9 +244,9 @@ Se utilizó uno de los seis inversores Schmitt del 74LS14N para invertir la señ
 
 Se utilizaron dos switches del TC4066BP para seleccionar cuál señal de ritmo llega al pin~4 (RST) del NE555 de tono: Switch~1 con la salida del 555 de ritmo lento, y Switch~2 con la salida del 555 de ritmo rápido controlado directamente por la señal \textit{últimos 5~s}. De esta forma el TC4066BP actúa como un multiplexor de dos entradas cuya señal de control proviene directamente de la máquina de estados.
 
-\subsubsection{Etapa de Amplificación}
+\subsection{Etapa de Amplificación}
 
-La señal del pin~3 del NE555 de tono tiene una amplitud de aproximadamente $5\,\text{V}_{pp}$ con $V_{CC} = 5\,\text{V}$, suficiente en voltaje pero con poca capacidad de corriente para excitar directamente un parlante de $8\,\Omega$. Por ello se diseñó un amplificador de dos etapas: emisor común para amplificar el voltaje, seguido de un seguidor de emisor para amplificar la corriente.
+La señal del pin~3 del NE555 de tono tiene una amplitud de aproximadamente $5\,\text{V}$ con $V_{CC}$~=~\qty{5}{V}, suficiente en voltaje pero con poca capacidad de corriente para excitar directamente un parlante de $8\,\Omega$. Por ello se diseñó un amplificador de dos etapas: emisor común para amplificar el voltaje, seguido de un seguidor de emisor para amplificar la corriente.
 
 Antes de ingresar al amplificador, la señal del NE555 se atenúa mediante un divisor de tensión ($47\,\text{k}\Omega$ en serie, con capacitor de acople de $4{,}7\,\mu\text{F}$) para reducirla de $5\,\text{V}$ a aproximadamente $800$--$900\,\text{mV}$, evitando la saturación del transistor de la primera etapa.
 
@@ -375,7 +257,7 @@ La polarización se realiza con un divisor de tensión en la base para establece
 \centering
 \caption{Componentes de la primera etapa (emisor común).}
 \label{tab:emisor_comun}
-\begin{tabular}{lll}
+\begin{tabular}{lcc}
 \toprule
 \textbf{Componente} & \textbf{Valor} & \textbf{Justificación} \\
 \midrule
@@ -406,7 +288,7 @@ La configuración de colector común con TIP31C amplifica la corriente para exci
 \centering
 \caption{Componentes de la segunda etapa (seguidor de emisor).}
 \label{tab:seguidor_emisor}
-\begin{tabular}{lll}
+\begin{tabular}{lcc}
 \toprule
 \textbf{Componente} & \textbf{Valor} & \textbf{Justificación} \\
 \midrule
@@ -441,43 +323,6 @@ Este valor de potencia es suficiente para garantizar la audibilidad del semáfor
     \label{fig:subsistema_audio}
 \end{figure}
 
-\subsubsection{Verificación en Simulación}
-
-El subsistema fue simulado en Multisim. Las mediciones con osciloscopio virtual y multímetro confirmaron el correcto funcionamiento de cada etapa. Los resultados se resumen en la Tabla~\ref{tab:verificacion_audio}.
-
-\begin{table}[H]
-\centering
-\caption{Comparación de valores esperados y medidos en simulación.}
-\label{tab:verificacion_audio}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Parámetro} & \textbf{Valor esperado} & \textbf{Valor medido} \\
-\midrule
-Frecuencia del tono      & $\approx 350\,\text{Hz}$  & $\approx 300$--$350\,\text{Hz}$ \\
-Ritmo lento              & $\approx 2\,\text{Hz}$    & $\approx 2\,\text{Hz}$ \\
-Ritmo rápido             & $\approx 6\,\text{Hz}$    & $\approx 6{,}48\,\text{Hz}$ \\
-Voltaje colector etapa~1 & $\approx 2{,}5\,\text{V}$ & $\approx 2{,}9\,\text{V}$ \\
-Voltaje base TIP31C      & $\approx 2{,}5\,\text{V}$ & $\approx 2{,}5\,\text{V}$ \\
-Corriente en parlante    & $\approx 225\,\text{mA}$  & $200$--$240\,\text{mA}$ \\
-Potencia en parlante     & $\approx 405\,\text{mW}$  & $320$--$460\,\text{mW}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Al activar la señal de \textit{últimos 5~s} mediante el switch manual que simula la máquina de estados, el ritmo cambia automáticamente al ritmo rápido, confirmando el correcto funcionamiento del bloque de selección con TC4066BP y 74LS14N. La variación observada en las mediciones de corriente se atribuye a los artefactos del simulador al trabajar con señales de onda cuadrada y múltiples etapas no lineales interactuando simultáneamente.
-
-
-
-
-\subsection{Sistema de Control}
-El sistema de control está diseñado para que desde este modulo se
-puedan manejar las demás etapas del proyecto, ya que de aquí se
-van a generar las señales de activación y desactivación para que
-funcionen otros sistemas, como las luces de los semáforos tanto del
-vehicular como del peatonal, así como la señal del audio, la cuenta
-regresiva y los tiempos de espera. Por lo que era importante
-investigar la forma más óptima y segura de poder generar las señales
-que de una manera segura eficiente.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% PARTE DE LA FSM
@@ -486,442 +331,66 @@ que de una manera segura eficiente.
 
 
 
-\subsubsection{Máquina de estados}
-Para la creación del controlador se implementó una máquina de estados
-basándose en un ejemplo del libro de Harris y Harris
-\cite{harris_digital}, el cual presentaba cuatro estados de control
-para un cruce de dos vías. Adaptándolo a las características del
-proyecto, se utilizaron igualmente cuatro estados, pero con otras
-variables de señales de salida. Se puede observar en la
-Fig.~\ref{fig:fsm}.
+\section{Máquina de estados (FSM)}
+
+
+
+\subsection{Contador y Drivers}
+
+La máquina de estados está basada en un contador CMOS CD4029 sincronizado al reloj del sistema. Este se utilizó por su capacidad de poder moverse entre diferentes estados de manera secuencial y reinicio asincrónico. Se utilizaron sus dos primeras salidas $Q_0$ y $Q_1$, correspondientes a los dos bits menos significativos de la cuenta, para representar los cuatro estados necesarios. En conjunto a una compuera AND CD4081 y una NOT CD4069 se pasó de esta cuenta en binario de dos bits a una condificación \textit{one-hot}, donde se tiene solo una señal en alto por cada uno de los diferentes estados. Cada una de de estas señales se usó como señal de activación para su propio driver, cuyo esquemático se puede ver en la Figura \ref{fig:Driver Esquemático}. El resultado es una FSM que se mueve de manera secuencial entre cuatro estados cuándo esta recibe una señal de conteo síncrona con el reloj del sistema. Cada estado tiene su respectivo driver, el cuál permite accessar la alimentación de \qty{5}{V} solamente cuando su respectivo estado está activo.
+
+Se definen los cuatro estados, junto a sus respectivas señales de driver, como $S0$, $S1$, $S2$, y $S3$. Las cuatro señales de salida del contador de la FSM, del bit menos significativo al bit más significativo, como $Q_0$, $Q_1$, $Q_2$, y $Q_3$. 
 
 \begin{figure}[H]
     \centering
     \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Diagrama de la máquina de estados del semáforo.}
-    \label{fig:fsm}
+    \caption{Esquemático de drivers en FSM}
+    \label{fig:Driver Esquemático}
 \end{figure}
 
-De acuerdo con la lógica implementada, en el estado inicial se
-mantienen la luz verde del semáforo vehicular y luz roja del
-semáforo peatonal siempre que $T_B = 0$; en el caso de que cambie
-con $T_B = 1$ pasa al segundo estado donde se activa la luz
-amarilla del semáforo vehicular y se mantiene la luz roja del
-peatonal. Aquí se va a utilizar la señal $T_C$ para controlar los
-tiempos de espera en cada estado; para el siguiente estado se
-cambia la señal del semáforo vehicular a rojo y el peatonal a
-verde, iniciando la cuenta regresiva y la señal de audio durante
-15 segundos. Por último, al llegar al estado S3, este solo se
-creó para diferenciar los últimos 5 segundos donde el ritmo de
-la señal de audio se va a aumentar para indicarle al peatón que
-ya se le va a finalizar su tiempo.
 
-Definida la máquina de estados, se procedió a la creación de las
-tablas de verdad.
-
-% ---- Tabla 1: Transición de estados ----
 \begin{table}[H]
 \centering
-\caption{Tabla de transición de estados.}
-\label{tab:transicion}
-\begin{tabular}{c c c c}
-\hline
-Estado actual & $T_B$ & $T_C$ & Próximo estado \\
-\hline
-S0 & 0 & X & S0 \\
-S0 & 1 & X & S1 \\
-S1 & X & 0 & S1 \\
-S1 & X & 1 & S2 \\
-S2 & X & 0 & S2 \\
-S2 & X & 1 & S3 \\
-S3 & X & 0 & S3 \\
-S3 & X & 1 & S0 \\
-\hline
-\end{tabular}
-\end{table}
-
-% ---- Tabla 2: Codificación de estados ----
-\begin{table}[H]
-\centering
-\caption{Tabla de codificación de estados.}
-\label{tab:codificacion}
-\begin{tabular}{c c c}
-\hline
-Estado & $S_1$ & $S_0$ \\
-\hline
-S0 & 0 & 0 \\
-S1 & 0 & 1 \\
-S2 & 1 & 0 \\
-S3 & 1 & 1 \\
-\hline
-\end{tabular}
-\end{table}
-
-% ---- Tabla 3: Transición con codificación binaria ----
-\begin{table}[H]
-\centering
-\caption{Tabla de transición con codificación binaria.}
-\label{tab:transicion_bin}
-\begin{tabular}{c c c c c c}
-\hline
-\multicolumn{2}{c}{Estado actual} & $T_B$ & $T_C$ &
-\multicolumn{2}{c}{Próximo estado} \\
-$S_1$ & $S_0$ & & & $S_1'$ & $S_0'$ \\
-\hline
-0 & 0 & 0 & X & 0 & 0 \\
-0 & 0 & 1 & X & 0 & 1 \\
-0 & 1 & X & 0 & 0 & 1 \\
-0 & 1 & X & 1 & 1 & 0 \\
-1 & 0 & X & 0 & 1 & 0 \\
-1 & 0 & X & 1 & 1 & 1 \\
-1 & 1 & X & 0 & 1 & 1 \\
-1 & 1 & X & 1 & 0 & 0 \\
-\hline
-\end{tabular}
-\end{table}
-
-% ---- Tabla 4: Tabla de salidas ----
-\begin{table}[H]
-\centering
-\caption{Tabla de salidas de la máquina de estados.}
-\label{tab:salidas}
-\begin{tabular}{c c c c c c c c c c}
-\hline
-Estado & $S_1$ & $S_0$ & LV & LA & LR & PV & PR & AUD & AF \\
-\hline
-S0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 \\
-S1 & 0 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 0 \\
-S2 & 1 & 0 & 0 & 0 & 1 & 1 & 0 & 1 & 0 \\
-S3 & 1 & 1 & 0 & 0 & 1 & 1 & 0 & 1 & 1 \\
-\hline
+\caption{Desglose de codificación one-hot}
+\label{tab:Drivers/Estados}
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Estado} & \textbf{Bits de Contador} & \textbf{Driver 0} & \textbf{Driver 1} & \textbf{Driver 2} & \textbf{Driver 3}\\
+\midrule
+$S0$ & $\overline{Q_1}~ \overline{Q_0}$ & ON & OFF & OFF & OFF \\
+$S1$ & $\overline{Q_1} ~Q_0$ & OFF & ON & OFF & OFF \\
+$S2$ & $Q_1 ~\overline{Q_0}$ & OFF & OFF & ON & OFF \\
+$S3$ & $Q_1 ~Q_0$ & OFF & OFF & OFF & ON \\
+\bottomrule
 \end{tabular}
 \end{table}
 
 
-Definidas las tablas de verdad, se crearon los mapas de Karnaugh
-para optimizar las compuertas y obtener las ecuaciones booleanas
-necesarias para implementar los circuitos.
+El número preestablecido del contador se configuro para ser 0, de manera que todas sus salidas se niegan una vez que el pin de \textit{Preset Enable} recibe una señal en alto. En el sistema, \textit{Preset Enable} recibe la señal de salida del botón $\overline{Q}$, por lo que el contador de la FSM se encuentra perpetuamente en el estado $S0$ hasta que el botón sea activado. Una vez que el el botón se activa, su señal $\overline{Q}$ permanecerá baja, lu cuál le permitirá a la FSM cambiar a estados diferentes de $S0$.
 
-% ---- K-map de S1' (4 variables) ----
-\begin{table}[H]
-\centering
-\caption{Mapa de Karnaugh para $S_1'$.}
-\label{tab:kmap_s1}
-\begin{tabular}{cc|cccc}
-\hline
-$T_B T_C \backslash S_1 S_0$\\
- & & 00 & 01 & 11 & 10 \\
-\hline
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 1 & 0 & 1 & 1 & 0 \\
-1 & 1 & 1 & 0 & 0 & 1 \\
-1 & 0 & 1 & 1 & 1 & 1 \\
-\hline
-\end{tabular}
-\end{table}
 
-\begin{equation}
-S_1' = S_1 \cdot \overline{S_0}
-     + S_1 \cdot \overline{T_C}
-     + \overline{S_1} \cdot S_0 \cdot T_C
-\label{eq:s1_next}
-\end{equation}
+La transisción de un estado a otro es controlada por la señal $T_C$. Está sera explicada a fondo más adelante. Se recalca que el conteo del CD4029 se habilita mediante el pin de \textit{Carry-In}, el cuál está negado. Por lo tanto, la señal $T_C$ que recibe esta entrada usualmente se encuentra en alto, y se pone baja de manera síncrona durante un pulso del reloj cuendo se quiere que la FSM avance al siguiente estado. 
 
-% ---- K-map de S0' (4 variables) ----
-\begin{table}[H]
-\centering
-\caption{Mapa de Karnaugh para $S_0'$.}
-\label{tab:kmap_s0}
-\begin{tabular}{cc|cccc}
-\hline
-$T_B T_C \backslash S_1 S_0$\\
- & & 00 & 01 & 11 & 10 \\
-\hline
-0 & 0 & 0 & 0 & 1 & 1 \\
-0 & 1 & 1 & 0 & 0 & 1 \\
-1 & 1 & 1 & 0 & 0 & 1 \\
-1 & 0 & 0 & 1 & 1 & 0 \\
-\hline
-\end{tabular}
-\end{table}
+\subsection{Botón}
 
-\begin{equation}
-S_0' = S_0 \cdot \overline{T_C}
-     + S_1 \cdot \overline{S_0} \cdot T_C
-     + \overline{S_1} \cdot \overline{S_0} \cdot T_B
-\label{eq:s0_next}
-\end{equation}
+Como se mencionó anteriormente, el bóton cumple la función de controlar cuándo el contador de la FSM, así como los contadores en el subsistema de despliegue, se encuentran en su modo preestablecido. 
 
-% ---- K-maps de salidas (2 variables) ----
-\begin{table}[H]
-\centering
-\caption{Mapas de Karnaugh para las señales de salida.}
-\label{tab:kmap_salidas}
+\subsection{Señal $T_C$}
 
-\vspace{0.5em}
-\textbf{LV} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 1 & 0 \\
-1 & 0 & 0 \\
-\end{tabular}
-\hfill
-\textbf{LA} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 0 & 1 \\
-1 & 0 & 0 \\
-\end{tabular}
-\hfill
-\textbf{LR} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 0 & 0 \\
-1 & 1 & 1 \\
-\end{tabular}
 
-\vspace{1em}
-\textbf{PV} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 0 & 0 \\
-1 & 1 & 1 \\
-\end{tabular}
-\hfill
-\textbf{PR} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 1 & 1 \\
-1 & 0 & 0 \\
-\end{tabular}
-\hfill
-\textbf{AUD} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 0 & 0 \\
-1 & 1 & 1 \\
-\end{tabular}
+\section{Estados} %Describir a qué está conectado el driver de cada estado (LEDs, cátodo, señal de audio, etc)
 
-\vspace{1em}
-\textbf{AF} \quad
-\begin{tabular}{c|cc}
-$S_1 \backslash S_0$ & 0 & 1 \\
-\hline
-0 & 0 & 0 \\
-1 & 0 & 1 \\
-\end{tabular}
-\end{table}
+En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
 
-\begin{align}
-LV  &= \overline{S_1} \cdot \overline{S_0} \label{eq:lv} \\
-LA  &= \overline{S_1} \cdot S_0 \label{eq:la} \\
-LR  &= PV = AUD = S_1 \label{eq:lr} \\
-PR  &= \overline{S_1} \label{eq:pr} \\
-AF  &= S_1 \cdot S_0 \label{eq:af}
-\end{align}
-
-Una vez obtenidas y simplificadas las funciones mediante los mapas de Karnaugh,se
-determinó la cantidad de compuertas lógicas necesarias para
-implementar el circuito ya que la ecuación de $S_1'$ requiere tres
-términos AND y una compuerta OR de tres entradas, al igual que la
-ecuación de $S_0'$ y en el caso de las señales de salida LV, LA y
-AF requieren cada una su propia compuerta AND de dos entradas, una vez definido esto se procedió al diseño e implementación de los circuitos utilizando compuertas lógicas, dando como resultado el dibujo de la Fig.~\ref{fig:fsm_dibujado}.
-
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Diagrama del circuito de la máquina de estados dibujado.}
-    \label{fig:fsm_dibujado}
-\end{figure}
-
-Contemplando las compuertas utilizadas para las señales negadas $\overline{S_1}$, $\overline{S_0}$ y
-$\overline{T_C}$ se puede utilizar el integrado 74HC04, el cual contiene
-seis compuertas NOT de las cuales se emplean tres.
-
-En el caso de las compuertas AND se seleccionó el integrado 74HC08, que
-contiene cuatro compuertas AND de dos entradas cada un y como las ecuaciones de próximo estado contienen tres términos de tres
-variables, estos se implementaron en cascada utilizando dos
-compuertas AND de dos entradas, reutilizando las señales de salida
-LV, LA y AF como productos intermedios. En total se requieren nueve
-compuertas AND de dos entradas dado esta se va a utilizar tres
-integrados 74HC08.
-
-Para combinar los tres términos de cada ecuación de próximo estado
-se seleccionó el integrado 74HC4075, que contiene tres compuertas
-OR de tres entradas, de las cuales se emplean dos.
-
-Por último, para el registro de estado se utilizó un integrado
-74HC74, el cual contiene dos flip-flops tipo D, uno para almacenar
-$S_1$ y otro para $S_0$.
-
-Para verificar el correcto funcionamiento de toda esta lógica, se
-simuló con el programa Multisim como se puede observar en las
-Fig.~\ref{fig:fsm_S0}, Fig.~\ref{fig:fsm_S1}, Fig.~\ref{fig:fsm_S2}
-y Fig.~\ref{fig:fsm_S3}, donde cada figura representa un estado de
-la FSM, además se puede observar su correcto funcionamiento, ya que se activa cada señal
-y luz del LED tal como se definió inicialmente en el
-diagrama de la FSM y las tablas de verdad.
+\subsection{S0}
 
 
 
+\subsection{S1}
 
-%%%FMS S0
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del estado SO}
-    \label{fig:fsm_S0}
-\end{figure}
+\subsection{S2}
 
-Se observa como en la imagen de la Fig.~\ref{fig:sim_SO} se enciende el led verde el cual tiene la señal de LV la cual debio activarse en este estado junto con la del PR, y la del TB = 0, ya que nadie a apretado el boto.
-
-
-%%%FMS S1
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del estado S1}
-    \label{fig:fsm_S1}
-\end{figure}
-
-En el momento que alguien aprete el botón TB = 1 y se desactivan las señales pasadas y se altiva la LA y se mantiene la PR en rojo, pero ahora también se activa el TC para que cambie al siguiente estado.
-
-%%%FMS S2
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del estado S2}
-    \label{fig:fsm_S2}
-\end{figure}
-
-En el tercer estado se activa la LR y la PR, además de una de las señales de audio AUD que va ha ser la encargada de iniciar el sonido para la señal auditiva de peatón.
-
-%%%FMS S3
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del estado S3}
-    \label{fig:fsm_S3}
-\end{figure}
-
-Por ultimo en el cuarto estado se mantienen las mismas señales de semáforo peatonal y vehicular, pero se le agrega la ultima señal de alerta auditiva por lo que la señal AF se activa para indicarle al peatón que le quedan menos de 5 segundos.
-
-\subsubsection{Señalización del semáforo vehicular}
-Una vez creado y demostrado que el controlador funciona, se procedió
-a crear otra de las etapas relacionada con el controlador: las
-señalizaciones de las luces. Para esta parte se construyeron
-circuitos básicos con resistencias y un transistor 2N2222, los
-cuales van a estar funcionando de acuerdo al estado en que se
-encuentre el controlador.
-Así se demuestra en las siguientes figuras, donde se simulan los
-circuitos de las luces del semáforo vehicular que, al conectarle
-las señales de LV, LA y LR, logran activar los LED de igual forma
-como se definió en los LED de prueba. Su orden de secuencia se
-puede ver en las Fig.~\ref{fig:sim_v_verde},
-Fig.~\ref{fig:sim_v_amarillo} y Fig.~\ref{fig:sim_v_rojo}.
-
-%%%FMS S1
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del semáforo vehicular luz verde}
-    \label{fig:sim_v_verde}
-\end{figure}
-
-
-%%%FMS S2
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del semáforo vehicular luz amarilla}
-    \label{fig:sim_v_amarillo}
-\end{figure}
-
-%%%FMS S3
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del semáforo vehicular luz roja}
-    \label{fig:sim_v_rojo}
-\end{figure}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Semaforo peatonal 
-
-\subsubsection{Señalización del semáforo peatonal}
-Lo mismo aplica para el circuito del semáforo peatonal, donde se
-definió un circuito sencillo con resistencias y un transistor
-2N2222. En este caso se conectaron dos circuitos idénticos en
-paralelo, donde cada uno simula el semáforo que va a haber en ambos
-lados de la calle, así se puede observar en las
-Fig.~\ref{fig:sim_p_rojo} y Fig.~\ref{fig:sim_p_verde}.
-
-
-%%%FMS S2
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del semáforo peatonal luz roja}
-    \label{fig:sim_p_rojo}
-\end{figure}
-
-%%%FMS S3
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del semáforo peatonal luz verde}
-    \label{fig:sim_p_verde}
-\end{figure}
-
-
-\subsubsection{Señalización del del conteo regresivo}
-Para la señalización de la cuenta regresiva se puede observar en la figuras Fig.~\ref{fig:sim_display_20} que se va activar con la señal del AUD porque al final tanto el sonido como el display debe estar sincronizado a que se inicien en el mismo instante entonces en el momento que se activa AUD, se debe iniciar tanto la señal de la cuenta regresiva como la señal auditiva para el peatón. 
-
-
-%%%Display 20s
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación de la cuenta regresiva inicial}
-    \label{fig:sim_display_20}
-\end{figure}
-
-Y en la segunda Fig.~\ref{fig:sim_display_5} se demuestra como está
-debidamente sincronizado, ya que en el momento que la señal AF se
-activa deben de faltar 5 segundos en el display.
-
-%%%Display 5s
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación de la cuenta regresiva en los últimos 5 segundos}
-    \label{fig:sim_display_5}
-\end{figure}
-
-Sobre el circuito que se va a utilizar tanto para la parte del contador como el del display se puede observar en la
-Fig.~\ref{fig:contador_display}, está compuesto por dos contadores
-4029BP configurados en modo descendente para las decenas y unidades
-respectivamente. Ambos contadores comparten un reloj de 1~Hz y sus
-salidas BCD se conectan a dos decodificadores 74LS47N, que a su vez
-controlan los displays de 7 segmentos de ánodo común. Para la
-detección del fin de cuenta se utilizaron compuertas AND e
-inversores 74LS04D que generan la señal $T_C$, la cual indica al
-controlador que el tiempo del estado actual ha finalizado. El
-conteo se habilita mediante un botón que se interrumpe cuando la
-FSM regresa al estado S0.
-%%%FMS S3
-\begin{figure}[H]
-    \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Simulación del circuito que se va a implementar para el contador y display}
-    \label{fig:contador_display}
-\end{figure}
+\subsection{S3}
 
 
 
@@ -930,6 +399,12 @@ FSM regresa al estado S0.
 \begin{thebibliography}{99}
 \bibitem{74ls74datasheet}
 Texas Instruments, ``SN74LS74A Dual D-Type Positive-Edge-Triggered Flip-Flops With Preset and Clear Datasheet,'' Dallas, TX, USA. [Online]. Available: \url{https://c1555f5ec9.clvaw-cdnwnd.com/34662fcf1f1e607c561442431023ac8e/200000751-dcad7dda84/74LS74%20Datasheet.pdf}
+
+\bibitem{7805datasheet}
+onsemi, MC7800, MC7800A, MC7800AE, NCV7800 Positive 1.0 A Voltage Regulators Datasheet, Rev. 28, Apr. 2014. [Online]. Available: https://www.onsemi.com/pdf/datasheet/mc7800-d.pdf
+
+
+
 \bibitem{electronicafp}
 Electrónica FP, ``555 Astable,'' YouTube, 2021. [Online]. Available: \url{https://www.youtube.com/watch?v=OKDaA-yE2QY}
 \bibitem{2n2222ds}
