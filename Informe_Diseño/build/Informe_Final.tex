@@ -355,12 +355,13 @@ Se definen los cuatro estados, junto a sus respectivas señales de driver, como 
 \label{tab:Drivers/Estados}
 \begin{tabular}{cccccc}
 \toprule
-\textbf{Estado} & \textbf{Bits de Contador} & \textbf{Driver 0} & \textbf{Driver 1} & \textbf{Driver 2} & \textbf{Driver 3}\\
+\textbf{Estado} & \textbf{Bits de Contador} & \textbf{Cuenta en FSM} & \textbf{Driver Activo} \\
 \midrule
-$S0$ & $\overline{Q_1}~ \overline{Q_0}$ & ON & OFF & OFF & OFF \\
-$S1$ & $\overline{Q_1} ~Q_0$ & OFF & ON & OFF & OFF \\
-$S2$ & $Q_1 ~\overline{Q_0}$ & OFF & OFF & ON & OFF \\
-$S3$ & $Q_1 ~Q_0$ & OFF & OFF & OFF & ON \\
+$S0$ & $\overline{Q_2}~\overline{Q_1}~ \overline{Q_0}$ & 0 & Driver 0 \\
+$S1$ & $\overline{Q_2}~\overline{Q_1} ~Q_0$ & 1 & Driver 1 \\
+$S2$ & $\overline{Q_2}~Q_1 ~\overline{Q_0}$ & 2 & Driver 2 \\
+$S3$ & $\overline{Q_2}~Q_1 ~Q_0$ & 3 & Driver 3 \\
+$S0$ & $Q_2~\overline{Q_1}~ \overline{Q_0}$ & 4 & Driver 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -369,11 +370,25 @@ $S3$ & $Q_1 ~Q_0$ & OFF & OFF & OFF & ON \\
 El número preestablecido del contador se configuro para ser 0, de manera que todas sus salidas se niegan una vez que el pin de \textit{Preset Enable} recibe una señal en alto. En el sistema, \textit{Preset Enable} recibe la señal de salida del botón $\overline{Q}$, por lo que el contador de la FSM se encuentra perpetuamente en el estado $S0$ hasta que el botón sea activado. Una vez que el el botón se activa, su señal $\overline{Q}$ permanecerá baja, lu cuál le permitirá a la FSM cambiar a estados diferentes de $S0$.
 
 
-La transisción de un estado a otro es controlada por la señal $T_C$. Está sera explicada a fondo más adelante. Se recalca que el conteo del CD4029 se habilita mediante el pin de \textit{Carry-In}, el cuál está negado. Por lo tanto, la señal $T_C$ que recibe esta entrada usualmente se encuentra en alto, y se pone baja de manera síncrona durante un pulso del reloj cuendo se quiere que la FSM avance al siguiente estado. 
+La transición de un estado a otro es controlada por la señal $T_C$. Está sera explicada a fondo más adelante. Se recalca que el conteo del CD4029 se habilita mediante el pin de \textit{Carry-In}, el cuál está negado. Por lo tanto, la señal $T_C$ que recibe esta entrada usualmente se encuentra en alto, y se pone baja de manera síncrona durante un pulso del reloj cuendo se quiere que la FSM avance al siguiente estado. 
 
 \subsection{Botón}
 
-Como se mencionó anteriormente, el bóton cumple la función de controlar cuándo el contador de la FSM, así como los contadores en el subsistema de despliegue, se encuentran en su modo preestablecido. 
+Como se mencionó anteriormente, el bóton cumple la función de controlar cuándo el contador de la FSM, así como los contadores en el subsistema de despliegue, se encuentran en su modo preestablecido. El diseño del botón está basado en el flip-flop SN7474, en conjunto con un buffer inversor SN7404. El uso de un flip-flop es crucial para poder guardar la "decisión" de apretar el botón hasta que la FSM regrese a su estado inicial. De esta manera, volver a apretar el botón durante un estado no deseado no tiene efecto alguno.
+
+El 7474 se encuentra en modo asincrónico, por lo que no se utilizan sus pines de \textit{Clock} y \textit{Data}. Su pin de \textit{Set} está invertido. Conectarlo mediante una resistencia de \qty{10}{k\Omega} a $V_S$ permite que la entrada esté usualmente inactiva. Para activar el pin de \textit{Set}, se tienen dos botones conectados desde este pin a tierra. Estos proveen un switch momentario que pone la entrada del pin en bajo, que en torno fija las salida $Q=1$, y la salida $\overline{Q}=0$. Se evita un corto de $V_S$ a tierra mediante la resistencia de \qty{10}{k\Omega} mencionada.
+
+El pin de \textit{Clear} también está negado, y se conecta a la señal del tercer bit de la FSM $\overline{Q_2}$, invertida mediante el 7404. Esto permite que cuando la cuenta de la FSM llegue a 4, se active el pin de \textit{Clear} del botón, y se fijen las salidas $Q=0$ y $\overline{Q}=1$. Cómo $\overline{Q}$ vuelve a estar en alto, esto activa los pines de \textit{Preset} de los contadores de la FSM y el subsistema de despliegue, preestableciendo las cuentas en 0 y 25 respectivamente. Cambiar el número del contador de la FSM de 4 a 0 no tiene un efecto notable en el sistema, ya que en ambos casos la máquina se encuentra en el estado $S0$, visto en la Tabla~\ref{tab:Drivers/Estados}.
+\\
+\\
+
+Dado que, al encender el sistema por primera vez, el 7474 tiene la posibilidad de comenzar en cualquiera de sus dos estados, se tuvo que divisar una manera de que el pin de \textit{Clear} siempre reciba una señal baja en este momento. Para esto se utilizó otro de los inversores del 7404. Se conectó la entrada de un inversor a $V_S$ mediante un capacitor de \qty{10}{\mu F}, así como a tierra mediante una resistencia de \qty{10}{k\Omega}. La salida de este inversor se conectó al pin de \textit{Clear}.
+
+Cuándo el circuito se enciende, este capacitor se encuentra descargado, por lo que actúa brevemente como un corto entre $V_S$ y la entrada del inversor. Esto permite que \textit{Clear} reciba una señal baja cuando el switch del subsistema de alimentación es cerrado. Posteriormente a este evento, el capacitor se logra cargar a los \qty{5}{V} de $V_S$, actuando como un abierto hasta que el sistema sea apagado. Una vez que este capacitor se carga, la entrada del inversor es fijada en bajo mediante la resistencia de \qty{10}{k\Omega}, lo cuál le envía perpetuamente una señal en alto al pin de \textit{Clear} y permite el funcionamiento ordinario del sistema. 
+
+
+
+
 
 \subsection{Señal $T_C$}
 
