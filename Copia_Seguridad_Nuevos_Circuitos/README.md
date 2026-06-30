@@ -1,1 +1,0 @@
-# Semaforo-Vehicular-y-Peatonal
