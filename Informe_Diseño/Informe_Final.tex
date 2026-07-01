@@ -365,23 +365,15 @@ Este valor de potencia es suficiente para garantizar la audibilidad del semáfor
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %% PARTE DE LA FSM
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Máquina de estados (FSM)}
 
-En la Figura~\ref{fig:maquina_estados} se presenta el diagrama de la máquina de estados con el comportamiento del semáforo, mostrando las cuatro combinaciones de LEDs vehiculares y peatonales, la señal de audio activa en cada caso, la duración de los estados temporizados, y las condiciones de transición ($T_B$ y $T_C$) entre ellos y los detalles de implementación de cada uno de estos elementos se desarrollan en las subsecciones siguientes.
+En la Figura~\ref{tab:estados_resumen} se presenta el diagrama de la máquina de estados con el comportamiento del semáforo, mostrando las cuatro combinaciones de LEDs vehiculares y peatonales, la señal de audio activa en cada caso, la duración de los estados temporizados, y las condiciones de transición ($T_B$ y $T_C$) entre ellos y los detalles de implementación de cada uno de estos elementos se desarrollan en las subsecciones siguientes.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\linewidth]{fsm.png}
-    \caption{Diagrama de la máquina de estados finitos del semáforo.}
-    \label{fig:maquina_estados}
-\end{figure}
 
-\subsection{Estados} %Describir a qué está conectado el driver de cada estado (LEDs, cátodo, señal de audio, etc)
+\subsection{Estados} 
 
 En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
 
@@ -473,9 +465,6 @@ Cuándo el circuito se enciende, este capacitor se encuentra descargado, por lo 
 \end{figure}
 
 
-
-
-
 \subsection{Señal $T_C$}
 
 La señal $T_C$ es generada por lógica combinacional a partir de las salidas de los contadores de decenas ($D_0$--$D_3$) y unidades ($U_0$--$U_3$) del subsistema de despliegue, mediante la red de compuertas 4049, 4002, 4081 y 4072 que decodifican los valores específicos de la cuenta regresiva de 25~s en los que debe ocurrir una transición de estado.
@@ -515,35 +504,35 @@ En las Figuras~\ref{fig:diagrama_pcb_eagle}, \ref{fig:pcb_eagle}, \ref{fig:pcb_a
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_pcb.png}
+    \includegraphics[width=0.7\linewidth]{Diagrama_pcb.png}
     \caption{Esquemático del diseño del PCB del subsistema de alimentación en EAGLE.}
     \label{fig:diagrama_pcb_eagle}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{pcb_eagle.png}
+    \includegraphics[width=0.6\linewidth]{pcb_eagle.png}
     \caption{Diseño del PCB del subsistema de alimentación en EAGLE.}
     \label{fig:pcb_eagle}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{pcb_antes.jpg}
+    \includegraphics[width=0.6\linewidth]{pcb_antes.jpg}
     \caption{PCB fabricado antes del proceso de soldadura.}
     \label{fig:pcb_antes}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{pcb_despues1.jpg}
+    \includegraphics[width=0.6\linewidth]{pcb_despues1.jpg}
     \caption{PCB del subsistema de alimentación con los componentes soldados, visto desde la capa superior.}
     \label{fig:pcb_top}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\linewidth]{pcb_despues2.jpg}
+    \includegraphics[width=0.6\linewidth]{pcb_despues2.jpg}
     \caption{Vista inferior del PCB después del proceso de soldadura.}
     \label{fig:pcb_bottom}
 \end{figure}
