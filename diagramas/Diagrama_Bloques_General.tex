@@ -21,13 +21,13 @@
 \draw [arrow, gray] (alimentacion) -- (temporizacion);
 \draw [arrow, gray] (alimentacion) -| (despliegue);
 \draw [arrow, gray] (alimentacion) -| (audio);
-\draw [arrow, gray] ([xshift=-20pt]alimentacion.south) -- ([xshift=-20pt]fsm.north);
+\draw [arrow, gray] ([xshift=-30pt]alimentacion.south) -- ([xshift=-30pt]fsm.north);
 
 \draw [arrow] (temporizacion) |- node[right] {Reloj} (despliegue);
 \draw [arrow] (temporizacion) |- ([yshift=-5pt]fsm.east);
 
 \draw [arrow, blue] (fsm) -- node[below] {\shortstack{Rapidez de \\ Pitido}} (audio);
-\draw [arrow, blue] ([xshift=20pt]fsm.north) |- node[above] {\shortstack{Displays \\ ON/OFF}} (despliegue.west);
+\draw [arrow, blue] ([xshift=20pt]fsm.north) |- node[above] {\shortstack{Displays ON/OFF \\ Reiniciar Cuenta}} (despliegue.west);
 \draw [arrow, blue] (fsm) -- (luces);
 
 \draw [arrow] (despliegue) |- node[pos=0.2, right] {Cuenta} ([yshift=5pt]fsm.east);
