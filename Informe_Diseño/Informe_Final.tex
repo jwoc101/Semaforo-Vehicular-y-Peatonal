@@ -173,7 +173,7 @@ Para lograr esto se diseñó un subsistema compuesto por tres etapas principales
 Se utilizaron tres temporizadores NE555 configurados en modo astable~\cite{ne555art}. Esta es la misma configuración que la del 555 en el subsistema de temporización, y permite generar una onda cuadrada de forma autónoma cuya frecuencia depende de los valores de $R_a$, $R_b$ y el capacitor de temporización $C$. Los tres temporizadores cumplen funciones distintas: uno genera el tono audible, uno genera el ritmo lento para el paso peatonal normal, y uno genera el ritmo rápido para los últimos cinco segundos.
 \\
 \\
-\textbf{NE555 de Tono ($\approx 300\,\text{Hz}$).}
+\textbf{NE555 de Tono}
 Este temporizador genera la frecuencia audible que percibe el peatón. Su salida por el pin~3 produce una onda cuadrada de aproximadamente $300\,\text{Hz}$, representativa de los tonos utilizados en semáforos peatonales reales. Los valores de componentes seleccionados se muestran en la Tabla~\ref{tab:555tono}.
 
 \begin{table}[H]
@@ -208,7 +208,7 @@ El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de
     \label{fig:bloque1_555}
 \end{figure}
 
-\textbf{NE555 de Ritmo Lento ($\approx 5{,}7\,\text{Hz}$).}
+\textbf{NE555 de Ritmo Lento}
 Este temporizador genera la cadencia de bips durante la fase normal del paso peatonal. Para lograr una pausa notablemente más larga que el bip, se incorporó un diodo 1N4149 en paralelo con $R_b$, separando los tiempos de carga y descarga del capacitor:
 
 \begin{align}
@@ -238,12 +238,12 @@ El pin~4 (RST) recibe la señal $AUD$, proveniente de la máquina de estados. Mi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_audio_lento.png}
+    \includegraphics[width=0.7\linewidth]{Diagrama_audio_lento.png}
     \caption{Circuito del NE555 de ritmo lento ($\approx 5{,}7\,\text{Hz}$).}
     \label{fig:ritmo_lento}
 \end{figure}
 
-\textbf{NE555 de Ritmo Rápido ($\approx 14{,}6\,\text{Hz}$).}
+\textbf{NE555 de Ritmo Rápido}
 Este temporizador genera la cadencia acelerada durante los últimos cinco segundos del paso peatonal, comunicando urgencia al peatón. Opera con los mismos principios que el de ritmo lento pero con $C$ reducido para aumentar la frecuencia. Los valores se muestran en la Tabla~\ref{tab:555rapido}.
 
 \begin{table}[H]
@@ -264,7 +264,7 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_audio_rapido.png}
+    \includegraphics[width=0.7\linewidth]{Diagrama_audio_rapido.png}
     \caption{Circuito del NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$).}
     \label{fig:ritmo_rapido}
 \end{figure}
@@ -370,11 +370,54 @@ Este valor de potencia es suficiente para garantizar la audibilidad del semáfor
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 \section{Máquina de estados (FSM)}
 
+En la Figura~\ref{fig:maquina_estados} se presenta el diagrama de la máquina de estados con el comportamiento del semáforo, mostrando las cuatro combinaciones de LEDs vehiculares y peatonales, la señal de audio activa en cada caso, la duración de los estados temporizados, y las condiciones de transición ($T_B$ y $T_C$) entre ellos y los detalles de implementación de cada uno de estos elementos se desarrollan en las subsecciones siguientes.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{fsm.png}
+    \caption{Diagrama de la máquina de estados finitos del semáforo.}
+    \label{fig:maquina_estados}
+\end{figure}
+
+\subsection{Estados} %Describir a qué está conectado el driver de cada estado (LEDs, cátodo, señal de audio, etc)
+
+En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
+
+\begin{table}[H]
+\centering
+\caption{Resumen de LEDs y audio activos por driver}
+\label{tab:estados_resumen}
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Driver} & \textbf{Vehicular} & \textbf{Peatonal} & \textbf{Audio} & \textbf{Duración} \\
+\midrule
+Driver 0 ($S_0$) & Verde & Rojo & --- & Indefinida \\
+Driver 1 ($S_1$) & Amarillo & Rojo & --- & 5~s \\
+Driver 2 ($S_2$) & Rojo & Verde & Ritmo lento & 15~s \\
+Driver 3 ($S_3$) & Rojo & Verde & Ritmo rápido & 5~s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cabe destacar que, físicamente, el semáforo peatonal cuenta con cuatro LEDs (dos por cada extremo de la calle: rojo y verde), pero ambos pares se controlan con la misma pareja de señales lógicas provenientes de la FSM, de modo que los LEDs de ambos lados de la calle conmutan siempre de forma idéntica.
+
+\subsubsection{S0}
+
+Es el estado inicial del sistema, correspondiente al Driver~0. En este estado se enciende el LED verde del semáforo vehicular, permitiendo el paso de vehículos, y el LED rojo del semáforo peatonal, indicando que el cruce no está habilitado. Ninguna señal de audio está activa. El sistema permanece en $S_0$ por tiempo indefinido hasta que el botón peatonal es presionado, momento en el cual se libera el \textit{Preset Enable} de la FSM y se habilita la cuenta regresiva de 25~s del subsistema de despliegue.
+
+\subsubsection{S1}
+
+Corresponde al Driver~1. El semáforo vehicular cambia a amarillo, advirtiendo a los conductores del cambio inminente a rojo, mientras que el semáforo peatonal se mantiene en rojo. Ninguna señal de audio está activa. Este estado dura 5~s, al cabo de los cuales $T_C = 1$ lleva a la FSM al Driver~2 ($S_2$).
+
+\subsubsection{S2}
+
+Corresponde al Driver~2. El semáforo vehicular cambia a rojo y el semáforo peatonal cambia a verde, habilitando el cruce. Se activa la señal $AUD$, que habilita el temporizador NE555 de ritmo lento ($\approx 5{,}7\,\text{Hz}$), produciendo la cadencia de bips normal del cruce peatonal. Este estado dura 15~s, al cabo de los cuales $T_C = 1$ lleva a la FSM al Driver~3 ($S_3$).
+
+\subsubsection{S3}
+
+Corresponde al Driver~3. Los LEDs vehicular (rojo) y peatonal (verde) se mantienen iguales que en $S_2$, por lo que visualmente no hay cambio en el semáforo. Lo que cambia es la señalización auditiva: la señal $AF(5S)$ (\textit{últimos 5~s}) conmuta el bloque de selección lógica (Subsección~\ref{subsec:seleccion_ritmo}) para que el NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$) tome el control del tono, advirtiendo al peatón que el tiempo de cruce está por terminar. Transcurridos estos 5~s (25~s totales desde que se presionó el botón), $T_C = 1$ avanza la cuenta de la FSM a 4, condición equivalente al Driver~0 ($S_0$), lo cual además dispara el \textit{Clear} del botón y reinicia el ciclo completo.
 
 \subsection{Contador y Drivers}
 
@@ -417,11 +460,6 @@ La transición de un estado a otro es controlada por la señal $T_C$. Está sera
 
 Como se mencionó anteriormente, el bóton cumple la función de controlar cuándo el contador de la FSM, así como los contadores en el subsistema de despliegue, se encuentran en su modo preestablecido. El diseño del botón está basado en el flip-flop SN7474, en conjunto con un buffer inversor SN7404. El uso de un flip-flop es crucial para poder guardar la "decisión" de apretar el botón hasta que la FSM regrese a su estado inicial. De esta manera, volver a apretar el botón durante un estado no deseado no tiene efecto alguno.
 
-El 7474 se encuentra en modo asincrónico, por lo que no se utilizan sus pines de \textit{Clock} y \textit{Data}. Su pin de \textit{Set} está invertido. Conectarlo mediante una resistencia de \qty{10}{k\Omega} a $V_S$ permite que la entrada esté usualmente inactiva. Para activar el pin de \textit{Set}, se tienen dos botones conectados desde este pin a tierra. Estos proveen un switch momentario que pone la entrada del pin en bajo, que en torno fija las salida $Q=1$, y la salida $\overline{Q}=0$. Se evita un corto de $V_S$ a tierra mediante la resistencia de \qty{10}{k\Omega} mencionada.
-
-El pin de \textit{Clear} también está negado, y se conecta a la señal del tercer bit de la FSM $\overline{Q_2}$, invertida mediante el 7404. Esto permite que cuando la cuenta de la FSM llegue a 4, se active el pin de \textit{Clear} del botón, y se fijen las salidas $Q=0$ y $\overline{Q}=1$. Cómo $\overline{Q}$ vuelve a estar en alto, esto activa los pines de \textit{Preset} de los contadores de la FSM y el subsistema de despliegue, preestableciendo las cuentas en 0 y 25 respectivamente. Cambiar el número del contador de la FSM de 4 a 0 no tiene un efecto notable en el sistema, ya que en ambos casos la máquina se encuentra en el estado $S0$, visto en la Tabla~\ref{tab:Drivers/Estados}.
-\\
-\\
 
 Dado que, al encender el sistema por primera vez, el 7474 tiene la posibilidad de comenzar en cualquiera de sus dos estados, se tuvo que divisar una manera de que el pin de \textit{Clear} siempre reciba una señal baja en este momento. Para esto se utilizó otro de los inversores del 7404. Se conectó la entrada de un inversor a $V_S$ mediante un capacitor de \qty{10}{\mu F}, así como a tierra mediante una resistencia de \qty{10}{k\Omega}. La salida de este inversor se conectó al pin de \textit{Clear}.
 
@@ -429,10 +467,12 @@ Cuándo el circuito se enciende, este capacitor se encuentra descargado, por lo 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_boton.png}
-    \caption{Esquemático del circuito de antirrebote y preset del botón peatonal.}
+    \includegraphics[width=0.6\linewidth]{Diagrama_boton.png}
+    \caption{Esquemático del circuito del botón peatonal.}
     \label{fig:diagrama_boton}
 \end{figure}
+
+
 
 
 
@@ -454,50 +494,11 @@ De esta manera, la duración efectiva de cada estado queda determinada por el in
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_TC.png}
+    \includegraphics[width=0.9\linewidth]{Diagrama_tc.png}
     \caption{Lógica combinacional de generación de la señal $T_C$ a partir de las salidas de los contadores de decenas y unidades.}
     \label{fig:diagrama_tc}
 \end{figure}
 
-
-\subsection{Estados}
-
-
-En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
-
-\begin{table}[H]
-\centering
-\caption{Resumen de LEDs y audio activos por driver}
-\label{tab:estados_resumen}
-\begin{tabular}{ccccc}
-\toprule
-\textbf{Driver} & \textbf{Vehicular} & \textbf{Peatonal} & \textbf{Audio} & \textbf{Duración} \\
-\midrule
-Driver 0 ($S_0$) & Verde & Rojo & --- & Indefinida \\
-Driver 1 ($S_1$) & Amarillo & Rojo & --- & 5~s \\
-Driver 2 ($S_2$) & Rojo & Verde & Ritmo lento & 15~s \\
-Driver 3 ($S_3$) & Rojo & Verde & Ritmo rápido & 5~s \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Cabe destacar que, físicamente, el semáforo peatonal cuenta con cuatro LEDs (dos por cada extremo de la calle: rojo y verde), pero ambos pares se controlan con la misma pareja de señales lógicas provenientes de la FSM, de modo que los LEDs de ambos lados de la calle conmutan siempre de forma idéntica.
-
-\subsection{S0}
-
-Es el estado inicial del sistema, correspondiente al Driver~0 (cuenta 0, y también cuenta 4 tras completarse el ciclo). En este estado se enciende el LED verde del semáforo vehicular, permitiendo el paso de vehículos, y el LED rojo del semáforo peatonal, indicando que el cruce no está habilitado. Ninguna señal de audio está activa. El sistema permanece en $S_0$ por tiempo indefinido hasta que el botón peatonal es presionado, momento en el cual se libera el \textit{Preset Enable} de la FSM y se habilita la cuenta regresiva de 25~s del subsistema de despliegue.
-
-\subsection{S1}
-
-Corresponde al Driver~1 (cuenta 1). El semáforo vehicular cambia a amarillo, advirtiendo a los conductores del cambio inminente a rojo, mientras que el semáforo peatonal se mantiene en rojo. Ninguna señal de audio está activa. Este estado dura 5~s, al cabo de los cuales $T_C = 1$ lleva a la FSM al Driver~2 ($S_2$).
-
-\subsection{S2}
-
-Corresponde al Driver~2 (cuenta 2). El semáforo vehicular cambia a rojo y el semáforo peatonal cambia a verde, habilitando el cruce. Se activa la señal $AUD$, que habilita el temporizador NE555 de ritmo lento ($\approx 5{,}7\,\text{Hz}$), produciendo la cadencia de bips normal del cruce peatonal. Este estado dura 15~s, al cabo de los cuales $T_C = 1$ lleva a la FSM al Driver~3 ($S_3$).
-
-\subsection{S3}
-
-Corresponde al Driver~3 (cuenta 3). Los LEDs vehicular (rojo) y peatonal (verde) se mantienen iguales que en $S_2$, por lo que visualmente no hay cambio en el semáforo. Lo que cambia es la señalización auditiva: la señal $AF(5S)$ (\textit{últimos 5~s}) conmuta el bloque de selección lógica (Subsección~\ref{subsec:seleccion_ritmo}) para que el NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$) tome el control del tono, advirtiendo al peatón que el tiempo de cruce está por terminar. Transcurridos estos 5~s (25~s totales desde que se presionó el botón), $T_C = 1$ avanza la cuenta de la FSM a 4, condición equivalente al Driver~0 ($S_0$), lo cual además dispara el \textit{Clear} del botón y reinicia el ciclo completo.
 
 \section{Maqueta}
 
