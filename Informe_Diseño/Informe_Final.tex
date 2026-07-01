@@ -57,10 +57,40 @@ El sistema diseñado opera con cuatro estados definidos por una máquina de esta
 El presente documento describe el diseño, análisis teórico, simulación e implementación en protoboard de cada subsistema, incluyendo los valores finales de componentes utilizados en el prototipo físico.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Delineamiento del Sistema}
+
+El sistema propuesto se divide en 5 subsistemas básicos: Alimentación, Temporización, Despliegue, Audio, y Máquina de Estados (FSM). Estos subsistemas trabajan entre sí para formar un sistema de dos semáforos peatonales y uno vehicular que funciona para un cruce peatonal. Al apretar alguno de los dos botones adjuntos a los semáforos peatonales, el semáforo vehicular cambia a su luz amarilla. Después de 5 segundos, el vehicular transiciona a luz roja, el peatonal a luz verde, y el sistema empieza a emitir un pitido intermitente de frecuencia constante que indica que el cruce está habilitado para dejar pasar a los peatones. El tiempo que este cruce está habilitado es de 25 segundos. Faltando 5 segundos para finalizar la cuenta regresiva, el tiempo entre pitidos disminuye, indicando que el periodo de cruce está por terminar. Una vez finalizada la cuenta, el sistema vuelve a su estado estándar, con la luz vehicular verde y peatonal roja, hasta que se vuelva a presionar el botón.
+
+El \textbf{subsistema de alimentación} es responsable de proveer el voltaje y corriente que los otros subsistemas necesiten. Tiene el requerimiento de necesitar ser conectado a un tomacorrientes para proveer este poder. Por lo tanto, el subsistema incluye un transformador de voltaje y un circuito rectificador de AC a DC, así como los medios para disipar cualquier potencia restante.
+
+El \textbf{subsistema de temporización} consiste en el reloj que el sistema utiliz para efectuar la cuenta regresiva durante el periodo de paso peatonal. Además, como este subsistema emite un pulso constante cada segundo, brinda una manera de sincronizar señales entre otros subsistemas.
+
+El \textbf{subsistema de despliegue} lidea con llevar el conteo regresivo y desplegarlo en los momentos deseados mediante dos displays de siete segmentos de un dígito. Este subsistema también le entrega a la FSM la información del conteo. De esta manera, la máquina de estados posee la información necesaria para saber en que instantes se debe de cambiar de estado.
+
+El \textbf{subsistema de audio} emite el pitido constante durante el periodo de cruce. Tiene la capacidad de emitir este pitido a dos diferentes frecuencias de ritmo, y así indicar cuando este periodo está por acabar. Se recalca que ninguna de estas dos frecuencias está sincronizada al subsistema de temporización.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Diagrama_Bloques_General.pdf}
+    \caption{Diagrama de bloques del sistema}
+    \label{fig:Diagrama_Bloques_General}
+\end{figure}
+
+La \textbf{máquina de estados (FSM)} recibe y emite las señales necesarias para coordinar el funcionamiento completo del sistema. Para llevar esto a cabo, este subsistema se divide en cuatro módulos: contador, botón, señal $T_C$, y los drivers. El contador, similar a los del susistema de despliegue, se utiliza para moverse de manera secuencial entre estados identificables. Cada número en el contador representa un estado diferente. El botón se utiliza para la primera transición de estado, y hacer que el semáforo vehicular pase de una luz roja a amarilla. A partir de este momento, el botón queda deshabilitado, y la máquina de estados le indica al subsistema de despliegue que comience la cuenta regresiva. La señal que indica en qué número se encuentra la cuenta regresiva en cualquier momento dado es recibida por el módulo de la señal $T_C$. Este módulo se encarga de identificar cuando han pasado 5 segundos desde que se inició la cuenta, cuando faltan 5 segundos para finalizar la cuenta, y cuándo se ha finalizado la cuenta. En cada uno de estos instantes, el módulo de la señal $T_C$ le indica al módulo contador que avance al siguiente estado. Una vez que se regresa al estado inicial, el módulo contador rehabilita al botón para poder volver a ser usado.
+
+Finalmente, se tienen los drivers de la FSM. Se tiene un driver por cada estado de la máquina, capaces de entregar una señal en alto proveniente del subsitema de alimentación mientras su respectivo estado sea el actual. A estos drivers están conectadas todas las señales que se desean transmitir desde la máquina de estados. Las más evidentes de estas, son las señales correspondientes a las luces de todos los semáforos. Cada driver está conectado a la configuración de luces que se necesita para su respectivo estado. Sin embargo, también se tienen las señales de cuándo el pitido del subsistema de audio debe habilitarse y aumentar en frecuencia, así como las señales de cuándo se debe comenzar la cuenta regresiva y encender los displays para mostrarla.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Diagrama_Bloques_FSM.pdf}
+    \caption{Diagrama de bloques de la máquina de estados}
+    \label{fig:Diagrama_Bloques_FSM}
+\end{figure}
 
 \section{Subsistema de Alimentación}
 
-El voltaje del sistema será proporcionado en su totalidad por una fuente de \qty{120}{VAC}, de manera que el semáforo funcione al ser conectado a un tomacorrientes común. Esta señal pasará por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal de este transformador luego será procesada por un arreglo rectificador de 4 diodos 1N4007 con un capacitor de filtro de \qty{4700}{\mu F}. El subsistema hasta este punto, produce una señal promedio de \qty{15}{V}. Para obtener la señal final en DC, se utilizaron dos reguladores de voltaje LM7805 de \qty{5}{V} en paralelo. Uno de estos reguladores es responsable de la alimentación del subsistema de audio, mientras que el otro actua como fuente para los subsistemas restantes.
+El voltaje del sistema es proporcionado en su totalidad por una fuente de \qty{120}{VAC}, de manera que el semáforo funciona al ser conectado a un tomacorrientes común. Esta señal pasa por un transformador de \qty{120}{VAC} a \qty{12}{VAC}. La señal de este transformador luego es procesada por un arreglo rectificador de 4 diodos 1N4007 con un capacitor de filtro de \qty{4700}{\mu F}. El subsistema hasta este punto, produce una señal promedio de \qty{15}{V}. Para obtener la señal final en DC, se utilizaron dos reguladores de voltaje LM7805 de \qty{5}{V} en paralelo. Uno de estos reguladores es responsable de la alimentación del subsistema de audio, mientras que el otro actua como fuente para los subsistemas restantes.
 
 \begin{figure}[H]
     \centering
