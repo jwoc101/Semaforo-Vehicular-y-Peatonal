@@ -14,6 +14,8 @@
 \usepackage{array}
 \usepackage{siunitx}
 \usepackage{pdflscape}
+\usepackage{siunitx}
+\usepackage{rotating}
 
 
 \geometry{margin=1in}
@@ -483,6 +485,8 @@ La transición inicial de la cuenta 0 ($S_0$) a la cuenta 1 ($S_1$) no depende d
 
 De esta manera, la duración efectiva de cada estado queda determinada por el intervalo entre disparos consecutivos de $T_C$: 5~s para $S_1$, 15~s para $S_2$, y 5~s para $S_3$, sumando los 25~s totales de la cuenta regresiva del subsistema de despliegue.
 
+Por ultimo en el apartado de apéndice se encuentra la imagen del diagrama del circuito completo de las simulaciones.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{Diagrama_tc.png}
@@ -504,14 +508,14 @@ Después del diseño en simulación, cada subsistema fue prototipado, lo que per
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{proto_tc_display.jpeg}
+    \includegraphics[width=0.7\linewidth]{proto_tc_display.jpeg}
     \caption{Prototipo del subsistema de despliegue y generación de la señal $T_C$.}
     \label{fig:proto_tc_display}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\linewidth]{proto_fsm_contador_boton.jpeg}
+    \includegraphics[width=0.7\linewidth]{proto_fsm_contador_boton.jpeg}
     \caption{Prototipo de la máquina de estados, con el contador y el circuito del botón.}
     \label{fig:proto_fsm_contador_boton}
 \end{figure}
@@ -599,15 +603,6 @@ Para su construcción se utilizaron los siguientes materiales:
     \label{fig:maqueta}
 \end{figure}
 
-\section{Anexos}
-\begin{landscape}
-\begin{figure}[p]
-    \centering
-    \includegraphics[width=\linewidth]{Diagrama_completo_recortado.pdf}
-    \caption{Diagrama esquemático completo del sistema.}
-    \label{fig:diagrama_completo}
-\end{figure}
-\end{landscape}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}
@@ -637,5 +632,18 @@ Architecture}, 2nd ed. Morgan Kaufmann, 2013.
 
 
 \end{thebibliography}
+\appendix
+\section{Diagrama esquemático completo}
+
+Al final de la pagina esta el diagrama del circuito completo.
+
+\begin{landscape}
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{Diagrama_completo_recortado.pdf}
+    \caption{Diagrama esquemático completo del sistema.}
+    \label{fig:diagrama_completo}
+\end{figure}
+\end{landscape}
 
 \end{document}

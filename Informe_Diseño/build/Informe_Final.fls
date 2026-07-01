@@ -164,6 +164,10 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflsca
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\pdflscape\pdflscape-nometadata.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\lscape.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\rotating.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\rotating.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\color.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics\color.sty
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\color.cfg
@@ -414,13 +418,13 @@ INPUT .\fig_finales\maqueta.jpeg
 INPUT .\fig_finales\maqueta.jpeg
 INPUT .\fig_finales\maqueta.jpeg
 INPUT .\fig_finales\maqueta.jpeg
-INPUT .\fig_finales\Diagrama_completo_recortado.pdf
-INPUT .\fig_finales\Diagrama_completo_recortado.pdf
-INPUT .\fig_finales\Diagrama_completo_recortado.pdf
-INPUT .\fig_finales\Diagrama_completo_recortado.pdf
-INPUT .\fig_finales\Diagrama_completo_recortado.pdf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmri8t.vf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri8r.tfm
+INPUT .\fig_finales\Diagrama_completo_recortado.pdf
+INPUT .\fig_finales\Diagrama_completo_recortado.pdf
+INPUT .\fig_finales\Diagrama_completo_recortado.pdf
+INPUT .\fig_finales\Diagrama_completo_recortado.pdf
+INPUT .\fig_finales\Diagrama_completo_recortado.pdf
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Proyecto\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Final.aux
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Proyecto\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Final.out
 INPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\Lab de analogico\Proyecto\Semaforo-Vehicular-y-Peatonal\Informe_Diseño\build\Informe_Final.out
