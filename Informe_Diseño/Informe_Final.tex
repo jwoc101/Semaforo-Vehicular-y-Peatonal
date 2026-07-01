@@ -13,6 +13,8 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{siunitx}
+\usepackage{pdflscape}
+
 
 \geometry{margin=1in}
 \graphicspath{{fig_finales/}}
@@ -488,6 +490,41 @@ De esta manera, la duración efectiva de cada estado queda determinada por el in
     \label{fig:diagrama_tc}
 \end{figure}
 
+
+\section{Circuito prototipado}
+
+Después del diseño en simulación, cada subsistema fue prototipado, lo que permitió detectar e implementar las modificaciones descritas en las secciones anteriores antes de pasar a la fabricación final, y se puede observar en las Figuras~\ref{fig:proto_fuente}--\ref{fig:proto_audio}, que muestran el montaje físico de cada sistema. Además, un dato importante a aclarar es que, como las imágenes son del resultado final de los circuitos, están agrupadas de manera estratégica para montarlos en la maqueta.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{proto_fuente.jpeg}
+    \caption{Prototipo del subsistema de alimentación antes de crear la PCB.}
+    \label{fig:proto_fuente}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{proto_tc_display.jpeg}
+    \caption{Prototipo del subsistema de despliegue y generación de la señal $T_C$.}
+    \label{fig:proto_tc_display}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{proto_fsm_contador_boton.jpeg}
+    \caption{Prototipo de la máquina de estados, con el contador y el circuito del botón.}
+    \label{fig:proto_fsm_contador_boton}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{proto_audio.jpeg}
+    \caption{Prototipo del subsistema de audio.}
+    \label{fig:proto_audio}
+\end{figure}
+
+
+
 \section{Diseño e implementación del PCB de alimentación}
 
 Como parte de la implementación final del proyecto, se diseñó y fabricó una PCB correspondiente al subsistema de alimentación. Esta etapa permitió trasladar el circuito de la protoboard a una placa física más compacta, reduciendo la cantidad de conexiones externas y facilitando su integración con la maqueta del semáforo vehicular y peatonal.
@@ -561,6 +598,16 @@ Para su construcción se utilizaron los siguientes materiales:
     \caption{Diseño final de la maqueta.}
     \label{fig:maqueta}
 \end{figure}
+
+\section{Anexos}
+\begin{landscape}
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{Diagrama_completo_recortado.pdf}
+    \caption{Diagrama esquemático completo del sistema.}
+    \label{fig:diagrama_completo}
+\end{figure}
+\end{landscape}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}
