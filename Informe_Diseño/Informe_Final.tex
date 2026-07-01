@@ -499,6 +499,55 @@ De esta manera, la duración efectiva de cada estado queda determinada por el in
     \label{fig:diagrama_tc}
 \end{figure}
 
+\section{Diseño e implementación del PCB de alimentación}
+
+Como parte de la implementación final del proyecto, se diseñó y fabricó una PCB correspondiente al subsistema de alimentación. Esta etapa permitió trasladar el circuito de la protoboard a una placa física más compacta, reduciendo la cantidad de conexiones externas y facilitando su integración con la maqueta del semáforo vehicular y peatonal.
+
+El diseño del PCB se realizó en EAGLE, tomando como base el esquemático del subsistema de alimentación (Fig~\ref{fig:diagrama_pcb_eagle}). En la placa se incluyeron los diodos rectificadores 1N4004, el capacitor principal de filtrado de \qty{4700}{\mu F}, los dos reguladores 7805, capacitores de desacople en la entrada y salida de los reguladores, y borneras para la conexión de entrada y salidas de alimentación. Los reguladores se colocaron en encapsulado vertical con disipadores de calor, debido a la corriente requerida por los demás subsistemas y a la disipación térmica observada durante las pruebas.
+
+Para el diseño físico, la placa se diseñó de una sola cara, por lo que las pistas fueron trazadas en la capa \textit{Bottom}, mientras que los componentes se insertaron desde la capa \textit{Top}. Además, se incorporó un plano de tierra conectado a GND, cubriendo la mayor área posible del PCB. Este plano permite mantener una referencia común de tierra y facilita el proceso de fabricación, ya que reduce la cantidad de cobre que debe ser removido.
+
+Entre el plano de tierra y las pistas se dejó una región de aislamiento para evitar cortocircuitos. En el diseño se utilizó un aislamiento mayor al mínimo recomendado, debido a las limitaciones de la broca utilizada durante el proceso de fabricación. De esta manera, se buscó asegurar que la máquina pudiera remover correctamente el cobre entre pistas, pads y plano de tierra. Asimismo, se utilizaron pistas de mayor grosor en las líneas de alimentación, ya que estas transportan la corriente requerida por los distintos bloques del sistema.
+
+Antes de fabricar la placa, se verificó el diseño mediante la herramienta DRC de EAGLE, revisando separaciones, pads, ancho de pistas y continuidad de las conexiones. A su vez se aplicaron las correcciones y consejos dados por el profesor. Posteriormente, se procedió con la fabricación del PCB, el perforado de los pads y el proceso de soldadura de los componentes. Finalmente, se realizaron pruebas de continuidad y medición de voltaje en las salidas de los reguladores para comprobar el funcionamiento correcto del subsistema de alimentación.  En la Fig.~\ref{fig:pcb_bottom} se puede observar una acumulación de estaño alrededor del pad de GND correspondiente al capacitor C1. Este inconveniente ocurrió durante el proceso de soldadura y fue corregido parcialmente retirando el exceso de material, se verificó que no existieran cortocircuitos con pistas cercanas antes de continuar con las pruebas de funcionamiento del PCB.
+
+En las Figuras~\ref{fig:diagrama_pcb_eagle}, \ref{fig:pcb_eagle}, \ref{fig:pcb_antes}, \ref{fig:pcb_top} y \ref{fig:pcb_bottom} se muestra el proceso de implementación del PCB, desde el diseño en EAGLE hasta la placa fabricada y ensamblada.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Diagrama_pcb.png}
+    \caption{Esquemático del diseño del PCB del subsistema de alimentación en EAGLE.}
+    \label{fig:diagrama_pcb_eagle}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{pcb_eagle.png}
+    \caption{Diseño del PCB del subsistema de alimentación en EAGLE.}
+    \label{fig:pcb_eagle}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{pcb_antes.jpg}
+    \caption{PCB fabricado antes del proceso de soldadura.}
+    \label{fig:pcb_antes}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{pcb_despues1.jpg}
+    \caption{PCB del subsistema de alimentación con los componentes soldados, visto desde la capa superior.}
+    \label{fig:pcb_top}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{pcb_despues2.jpg}
+    \caption{Vista inferior del PCB después del proceso de soldadura.}
+    \label{fig:pcb_bottom}
+\end{figure}
+
 
 \section{Maqueta}
 
