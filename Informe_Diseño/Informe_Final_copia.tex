@@ -15,6 +15,8 @@
 \usepackage{siunitx}
 
 \geometry{margin=1in}
+\graphicspath{{fig_finales/}}
+
 
 \title{Proyecto Final: Semáforo Vehicular y Peatonal}
 
@@ -62,9 +64,9 @@ El voltaje del sistema será proporcionado en su totalidad por una fuente de \qt
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \includegraphics[width=0.9\linewidth]{Diagrama_fuente.png}
     \caption{Subsistema de alimentación rectificador}
-    \label{fig:bloque1_555}
+    \label{fig:bloque_fuente}
 \end{figure}
 
 Además, para ambos reguladores se conectó un capacitor de \qty{1}{\mu F} entre su entrada y tierra. Esto se llevó a cabo para estabilizar el voltaje de entrada que ve el regulador ante ruido que puede aparecer en el circuito rectificador. Además, protege al regulador de caídas en el voltaje de entrada debido a cambios abruptos en la corriente utilizada por el sistema. Asimismo, un capacitor de \qty{0.1}{\mu F} entre su salida y tierra por las mismas razones. \cite{7805datasheet}
