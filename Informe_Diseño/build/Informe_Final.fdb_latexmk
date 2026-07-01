@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1782864475.42341 "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final.tex" "build/Informe_Final.pdf" "Informe_Final" 1782864476.87096 0
+["pdflatex"] 1782869283.20892 "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final.tex" "build/Informe_Final.pdf" "Informe_Final" 1782869285.10878 0
   "C:/Users/Usuario/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1779500556 84158 d77284a6843bde1e4b9764f09fb2e89e ""
   "C:/Users/Usuario/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773625622 13334817 f40b6ef95b97aa6586991d4cc53eee7b ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -113,10 +113,16 @@
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/translations/dicts/translations-basic-dictionary-spanish.trsl" 1644048522 5850 2ef40dd7b6b9ada125cd1d90b7f7b307 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/translations/translations.sty" 1644048522 44247 2188b95d0ee74e31eca4d316263c58a7 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "Informe_Final.tex" 1782864171 29208 7ac9eb4f3e782103a58a1b983ed6ed4e ""
-  "build/Informe_Final.aux" 1782864476 6678 661485fb5cdc4336f0721fb8acac77bd "pdflatex"
-  "build/Informe_Final.out" 1782864476 2344 3fde5ad5666e67712b0824f8cc07739c "pdflatex"
-  "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final.tex" 1782864171 29208 7ac9eb4f3e782103a58a1b983ed6ed4e ""
+  "Informe_Final.tex" 1782869280 29399 1b3c7ce39a70acd751be80d6161a2241 ""
+  "build/Informe_Final.aux" 1782869284 6867 25682974ffd58e6492043b642e521612 "pdflatex"
+  "build/Informe_Final.out" 1782869284 2344 3fde5ad5666e67712b0824f8cc07739c "pdflatex"
+  "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final.tex" 1782869280 29399 1b3c7ce39a70acd751be80d6161a2241 ""
+  "fig_finales/Diagrama_audio.png" 1782843149 88122 a425cb69a5e07a690efaf5c041027fce ""
+  "fig_finales/Diagrama_audio_amplificador.png" 1782866443 45149 9fa72ff95321b27f18078520ba2b7212 ""
+  "fig_finales/Diagrama_audio_lento.png" 1782868912 19383 0615ebf3b4074d12f4d7f481af609ebd ""
+  "fig_finales/Diagrama_audio_rapido.png" 1782868925 18473 251c6036c7127fd24d1d6ee8c81ff0ca ""
+  "fig_finales/Diagrama_audio_tono.png" 1782867594 58348 87e6f33513887409f4de83cf2aa9601e ""
+  "fig_finales/Diagrama_display.png" 1782843247 78501 e850e63446b874a722a202a2c8a9f8a2 ""
   "fig_finales/Diagrama_fuente.png" 1782843527 50847 c49e9cbd69c31848b6df00e3bf423b11 ""
   "fig_finales/Diagrama_reloj_555.png" 1782843586 16376 2af7d69a9e28d19961c9046e184b3406 ""
   (generated)

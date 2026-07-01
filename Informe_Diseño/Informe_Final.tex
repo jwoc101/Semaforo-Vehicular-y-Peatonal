@@ -126,6 +126,14 @@ Este subsistema opera en base a dos contadores CMOS CD4029 conectados en cascodo
 Las salidas del contador de las decenas, del bit menos significativo al bit más significativo, se definen $D_0$, $D_1$, $D_2$, y $D_3$. Las salidas del contador de unidades se definen $U_0$, $U_1$, $U_2$, y $U_3$, de la misma manera. Ambos contadores tienen un decodificador CD4511B respectivo, al cuál las salidas del contador están conectadas. Ambos decodificadores están conectados a un display de 7 segmentos de cátodo común correspondiente. El cátodo de estos está conectado a tierra mediante una resistencia de \qty{330}{\Omega} para limitar la corriente. 
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Diagrama_display.png}
+    \caption{Subsistema de decodifiador de los display.}
+    \label{fig:bloque1_555}
+\end{figure}
+
+
 \section{Subsistema de Audio}
 
 El subsistema de audio tiene como objetivo generar señalización auditiva para el semáforo peatonal. Según las especificaciones del proyecto, el sistema debe producir un sonido periódico mientras el paso peatonal está habilitado, y aumentar la frecuencia de ese sonido durante los últimos cinco segundos antes del cambio al estado de detención.
@@ -167,9 +175,9 @@ El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \includegraphics[width=0.9\linewidth]{Diagrama_audio_tono.png}
     \caption{Circuito del NE555 de tono ($\approx 351\,\text{Hz}$).}
-    \label{fig:tono}
+    \label{fig:bloque1_555}
 \end{figure}
 
 \textbf{NE555 de Ritmo Lento ($\approx 5{,}7\,\text{Hz}$).}
@@ -202,7 +210,7 @@ El pin~4 (RST) recibe la señal $AUD$, proveniente de la máquina de estados. Mi
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \includegraphics[width=0.9\linewidth]{Diagrama_audio_lento.png}
     \caption{Circuito del NE555 de ritmo lento ($\approx 5{,}7\,\text{Hz}$).}
     \label{fig:ritmo_lento}
 \end{figure}
@@ -228,7 +236,7 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \includegraphics[width=0.9\linewidth]{Diagrama_audio_rapido.png}
     \caption{Circuito del NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$).}
     \label{fig:ritmo_rapido}
 \end{figure}
@@ -313,14 +321,14 @@ Este valor de potencia es suficiente para garantizar la audibilidad del semáfor
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
-    \caption{Esquemático del amplificador de dos etapas (emisor común + seguidor de emisor).}
+    \includegraphics[width=0.9\linewidth]{Diagrama_audio_amplificador.png}
+    \caption{Esquemático del amplificador de dos etapas.}
     \label{fig:amplificador}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \begin{center}\textit{(nueva foto del diagrama)}\end{center}
+    \includegraphics[width=0.9\linewidth]{Diagrama_audio.png}
     \caption{Esquemático completo del subsistema de audio en Multisim.}
     \label{fig:subsistema_audio}
 \end{figure}
