@@ -459,7 +459,9 @@ De esta manera, la duración efectiva de cada estado queda determinada por el in
     \label{fig:diagrama_tc}
 \end{figure}
 
-\section{Estados} 
+
+\subsection{Estados}
+
 
 En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
 
@@ -497,6 +499,7 @@ Corresponde al Driver~2 (cuenta 2). El semáforo vehicular cambia a rojo y el se
 
 Corresponde al Driver~3 (cuenta 3). Los LEDs vehicular (rojo) y peatonal (verde) se mantienen iguales que en $S_2$, por lo que visualmente no hay cambio en el semáforo. Lo que cambia es la señalización auditiva: la señal $AF(5S)$ (\textit{últimos 5~s}) conmuta el bloque de selección lógica (Subsección~\ref{subsec:seleccion_ritmo}) para que el NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$) tome el control del tono, advirtiendo al peatón que el tiempo de cruce está por terminar. Transcurridos estos 5~s (25~s totales desde que se presionó el botón), $T_C = 1$ avanza la cuenta de la FSM a 4, condición equivalente al Driver~0 ($S_0$), lo cual además dispara el \textit{Clear} del botón y reinicia el ciclo completo.
 
+<<<<<<< HEAD
 \section{Diseño e implementación del PCB de alimentación}
 
 Como parte de la implementación final del proyecto, se diseñó y fabricó una PCB correspondiente al subsistema de alimentación. Esta etapa permitió trasladar el circuito de la protoboard a una placa física más compacta, reduciendo la cantidad de conexiones externas y facilitando su integración con la maqueta del semáforo vehicular y peatonal.
@@ -545,8 +548,31 @@ En las Figuras~\ref{fig:diagrama_pcb_eagle}, \ref{fig:pcb_eagle}, \ref{fig:pcb_a
     \caption{Vista inferior del PCB después del proceso de soldadura.}
     \label{fig:pcb_bottom}
 \end{figure}
+=======
+\section{Maqueta}
+
+Para el diseño de la maqueta se buscó representar un cruce peatonal realista, relacionado con el entorno que transitan los integrantes del curso por lo que la intersección que inspiró el diseño fue la ubicada frente a la entrada principal del Instituto Tecnológico de Costa Rica, el objetivo era utilizar un entorno familiar tanto para el profesor como para los estudiantes; sin embargo, dado que en la realidad esa intersección no cuenta con semáforo vehicular ni peatonal, el diseño se adaptó para emplearla como referencia visual del proyecto.
+>>>>>>> 6e43a1e2b6a0cbe1ba70799bd5b19398b91c1de3
 
 
+Para su construcción se utilizaron los siguientes materiales:
+
+\begin{itemize}
+    \item Papel de construcción
+    \item Cartón de presentación
+    \item Pajillas
+    \item Hojas blancas
+    \item Pinturas
+    \item Pegamento
+    \item Silicón
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{maqueta.jpeg}
+    \caption{Diseño final de la maqueta.}
+    \label{fig:maqueta}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{thebibliography}{99}
