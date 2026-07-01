@@ -38,7 +38,7 @@ Jimena Vargas Vega
 \maketitle
 
 \begin{abstract}
-En este trabajo se presenta el diseño, simulación e implementación física de un sistema de semáforo vehicular y peatonal controlado completamente mediante lógica digital discreta, sin el uso de microcontroladores ni FPGAs. El sistema integra seis subsistemas principales: alimentación rectificada regulada a 5~V, generación de reloj de 1~Hz con temporizador NE555, botón peatonal con antirrebote RC y Schmitt Trigger, contador regresivo BCD de 25 segundos con detección combinacional de los instantes de cambio de estado, máquina de estados finitos (FSM) de cuatro estados implementada con flip-flops 74HC74 y compuertas lógicas, y un subsistema de audio con tres osciladores NE555, selección de ritmo mediante lógica combinacional (AND/OR/NOT) y amplificación en dos etapas (2N2222 + TIP31C) para excitar un parlante de $8\,\Omega$. Todos los subsistemas fueron verificados en simulación con Multisim y posteriormente construidos e integrados sobre protoboard. Los resultados obtenidos confirman el correcto funcionamiento de la secuencia de estados, la temporización, la señalización auditiva con cambio automático de ritmo, y la visualización del conteo regresivo en displays de siete segmentos.
+En este trabajo se presenta el diseño, simulación e implementación física de un sistema de semáforo vehicular y peatonal controlado completamente mediante lógica digital discreta, sin el uso de microcontroladores ni FPGAs. El sistema integra seis subsistemas principales: alimentación rectificada regulada a 5~V, generación de reloj de 1~Hz con temporizador NE555, botón peatonal con antirrebote RC y Schmitt Trigger, contador regresivo BCD de 25 segundos con detección combinacional de los instantes de cambio de estado, máquina de estados finitos (FSM) de cuatro estados implementada con flip-flops 74HC74 y compuertas lógicas, y un subsistema de audio con tres osciladores NE555, selección de ritmo por switch analógico TC4066 y amplificación en dos etapas (2N2222 + TIP31C) para excitar un parlante de $8\,\Omega$. Todos los subsistemas fueron verificados en simulación con Multisim y posteriormente construidos e integrados sobre protoboard. Los resultados obtenidos confirman el correcto funcionamiento de la secuencia de estados, la temporización, la señalización auditiva con cambio automático de ritmo, y la visualización del conteo regresivo en displays de siete segmentos.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -171,7 +171,7 @@ Aplicando la ecuación~\eqref{eq:NE555}:
       \approx 351\,\text{Hz}
 \end{equation}
 
-El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de ritmo (compuertas AND1A, AND2A, OR1A y AND\_ENABLE1A, ver Subsección~\ref{subsec:seleccion_ritmo}), lo que permite interrumpir el tono rítmicamente para crear los bips audibles.
+El pin~4 (RST) de este temporizador recibe la señal del bloque de selección de ritmo (TC4066BP), lo que permite interrumpir el tono rítmicamente para crear los bips audibles.
 
 \begin{figure}[H]
     \centering
@@ -242,20 +242,17 @@ Diodo  & 1N4149                & Separa tiempos de carga y descarga \\
 \end{figure}
 
 \subsection{Selección Lógica del Ritmo}
-\label{subsec:seleccion_ritmo}
 
-Para que el subsistema de audio cambie automáticamente entre ritmo lento y ritmo rápido según la fase del semáforo, se implementó un bloque de selección lógica compuesto por compuertas AND (74HC08), una compuerta OR (74HC32) y un inversor (74HC04), en lugar de un switch analógico.
+Para que el subsistema de audio cambie automáticamente entre ritmo lento y ritmo rápido según la fase del semáforo, se implementó un bloque de selección lógica compuesto por un switch analógico TC4066BP y un inversor 74LS14N.
 
-El inversor (\textit{not1A}) invierte la señal $AF(5S)$ (\textit{últimos 5~s}) proveniente de la máquina de estados. Esta señal, junto con su versión invertida, habilita de forma mutuamente excluyente cuál de las dos señales de ritmo avanza hacia la etapa de tono:
+Se utilizó uno de los seis inversores Schmitt del 74LS14N para invertir la señal de \textit{últimos 5~s} proveniente de la máquina de estados. Esta señal invertida controla el Switch~1 del TC4066BP, garantizando que ambos switches operen de forma complementaria y nunca estén activos simultáneamente:
 
 \begin{itemize}
-    \item \textbf{AND1A}: combina la salida del NE555 de ritmo lento con $\overline{AF(5S)}$, de modo que solo deja pasar el ritmo lento cuando el sistema \emph{no} se encuentra en los últimos 5~s del cruce peatonal.
-    \item \textbf{AND2A}: combina la salida del NE555 de ritmo rápido con $AF(5S)$, de modo que solo deja pasar el ritmo rápido durante los últimos 5~s del cruce peatonal.
+    \item Señal \textit{últimos 5~s} en LOW $\Rightarrow$ inversor da HIGH $\Rightarrow$ Switch~1 activo $\Rightarrow$ ritmo lento pasa al tono.
+    \item Señal \textit{últimos 5~s} en HIGH $\Rightarrow$ inversor da LOW $\Rightarrow$ Switch~1 inactivo $\Rightarrow$ ritmo rápido toma el control.
 \end{itemize}
 
-Ambas señales se combinan mediante la compuerta \textbf{OR1A}, que actúa como un multiplexor de dos entradas cuya señal de control es $AF(5S)$: mientras $AF(5S)$ está en LOW, el ritmo lento pasa a la salida; cuando $AF(5S)$ pasa a HIGH, el ritmo rápido toma el control.
-
-Finalmente, la salida de \textbf{OR1A} se combina con la señal $AUD$ mediante la compuerta \textbf{AND\_ENABLE1A}, que habilita el ritmo seleccionado únicamente durante las fases en que el cruce peatonal está activo ($S_2$ y $S_3$) y lo mantiene en LOW durante el resto del ciclo, evitando que se genere sonido fuera de esos estados. La salida de esta última compuerta alimenta el pin~4 (RST) del NE555 de tono.
+Se utilizaron dos switches del TC4066BP para seleccionar cuál señal de ritmo llega al pin~4 (RST) del NE555 de tono: Switch~1 con la salida del 555 de ritmo lento, y Switch~2 con la salida del 555 de ritmo rápido controlado directamente por la señal \textit{últimos 5~s}. De esta forma el TC4066BP actúa como un multiplexor de dos entradas cuya señal de control proviene directamente de la máquina de estados.
 
 \subsection{Etapa de Amplificación}
 
@@ -399,12 +396,7 @@ Dado que, al encender el sistema por primera vez, el 7474 tiene la posibilidad d
 
 Cuándo el circuito se enciende, este capacitor se encuentra descargado, por lo que actúa brevemente como un corto entre $V_S$ y la entrada del inversor. Esto permite que \textit{Clear} reciba una señal baja cuando el switch del subsistema de alimentación es cerrado. Posteriormente a este evento, el capacitor se logra cargar a los \qty{5}{V} de $V_S$, actuando como un abierto hasta que el sistema sea apagado. Una vez que este capacitor se carga, la entrada del inversor es fijada en bajo mediante la resistencia de \qty{10}{k\Omega}, lo cuál le envía perpetuamente una señal en alto al pin de \textit{Clear} y permite el funcionamiento ordinario del sistema. 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_boton.png}
-    \caption{Esquemático del circuito de antirrebote y preset del botón peatonal.}
-    \label{fig:diagrama_boton}
-\end{figure}
+
 
 
 
@@ -424,14 +416,7 @@ La transición inicial de la cuenta 0 ($S_0$) a la cuenta 1 ($S_1$) no depende d
 
 De esta manera, la duración efectiva de cada estado queda determinada por el intervalo entre disparos consecutivos de $T_C$: 5~s para $S_1$, 15~s para $S_2$, y 5~s para $S_3$, sumando los 25~s totales de la cuenta regresiva del subsistema de despliegue.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\linewidth]{Diagrama_TC.png}
-    \caption{Lógica combinacional de generación de la señal $T_C$ a partir de las salidas de los contadores de decenas y unidades.}
-    \label{fig:diagrama_tc}
-\end{figure}
-
-\section{Estados} 
+\section{Estados} %Describir a qué está conectado el driver de cada estado (LEDs, cátodo, señal de audio, etc)
 
 En esta sección se quiere mencionar cómo las señales tomadas de los 4 drivers interactúan con el resto del sistema. De esta manera, se puede tener el panorama completo de cómo funciona el sistema en su totalidad durante cada estado. 
 
@@ -467,7 +452,7 @@ Corresponde al Driver~2 (cuenta 2). El semáforo vehicular cambia a rojo y el se
 
 \subsection{S3}
 
-Corresponde al Driver~3 (cuenta 3). Los LEDs vehicular (rojo) y peatonal (verde) se mantienen iguales que en $S_2$, por lo que visualmente no hay cambio en el semáforo. Lo que cambia es la señalización auditiva: la señal $AF(5S)$ (\textit{últimos 5~s}) conmuta el bloque de selección lógica (Subsección~\ref{subsec:seleccion_ritmo}) para que el NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$) tome el control del tono, advirtiendo al peatón que el tiempo de cruce está por terminar. Transcurridos estos 5~s (25~s totales desde que se presionó el botón), $T_C = 1$ avanza la cuenta de la FSM a 4, condición equivalente al Driver~0 ($S_0$), lo cual además dispara el \textit{Clear} del botón y reinicia el ciclo completo.
+Corresponde al Driver~3 (cuenta 3). Los LEDs vehicular (rojo) y peatonal (verde) se mantienen iguales que en $S_2$, por lo que visualmente no hay cambio en el semáforo. Lo que cambia es la señalización auditiva: la señal de \textit{últimos 5~s} conmuta el TC4066BP para que el NE555 de ritmo rápido ($\approx 14{,}6\,\text{Hz}$) tome el control del tono, advirtiendo al peatón que el tiempo de cruce está por terminar. Transcurridos estos 5~s (25~s totales desde que se presionó el botón), $T_C = 1$ avanza la cuenta de la FSM a 4, condición equivalente al Driver~0 ($S_0$), lo cual además dispara el \textit{Clear} del botón y reinicia el ciclo completo.
 
 
 
