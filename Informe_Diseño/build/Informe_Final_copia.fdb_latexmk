@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1782845194.17652 "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final_copia.tex" "build/Informe_Final_copia.pdf" "Informe_Final_copia" 1782845195.29494 0
+["pdflatex"] 1782849466.22519 "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final_copia.tex" "build/Informe_Final_copia.pdf" "Informe_Final_copia" 1782849467.53995 0
   "C:/Users/Usuario/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1779500556 84158 d77284a6843bde1e4b9764f09fb2e89e ""
   "C:/Users/Usuario/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773625622 13334817 f40b6ef95b97aa6586991d4cc53eee7b ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -113,10 +113,11 @@
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/translations/dicts/translations-basic-dictionary-spanish.trsl" 1644048522 5850 2ef40dd7b6b9ada125cd1d90b7f7b307 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/translations/translations.sty" 1644048522 44247 2188b95d0ee74e31eca4d316263c58a7 ""
   "C:/Users/Usuario/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "Informe_Final_copia.tex" 1782771241 26277 61e250f0651ee01aca06110e63be816f ""
-  "build/Informe_Final_copia.aux" 1782845195 6668 059e3fba0bd1457e04c5a7c457f8202d "pdflatex"
-  "build/Informe_Final_copia.out" 1782845195 2344 3fde5ad5666e67712b0824f8cc07739c "pdflatex"
-  "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final_copia.tex" 1782771241 26277 61e250f0651ee01aca06110e63be816f ""
+  "Informe_Final_copia.tex" 1782849464 26310 c383e92992cfd12bfe2f688e7afc25a5 ""
+  "build/Informe_Final_copia.aux" 1782849467 6670 da7587e84683d7237cfdc315610c2820 "pdflatex"
+  "build/Informe_Final_copia.out" 1782849467 2344 3fde5ad5666e67712b0824f8cc07739c "pdflatex"
+  "c:/Users/Usuario/OneDrive - Estudiantes ITCR/Documentos/I_Semestre_2026/Lab de analogico/Proyecto/Semaforo-Vehicular-y-Peatonal/Informe_Diseño/Informe_Final_copia.tex" 1782849464 26310 c383e92992cfd12bfe2f688e7afc25a5 ""
+  "fig_finales/Diagrama_fuente.png" 1782843527 50847 c49e9cbd69c31848b6df00e3bf423b11 ""
   (generated)
   "build/Informe_Final_copia.aux"
   "build/Informe_Final_copia.log"
