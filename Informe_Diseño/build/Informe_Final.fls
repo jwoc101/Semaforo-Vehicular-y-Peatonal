@@ -226,8 +226,6 @@ OUTPUT c:\Users\Usuario\OneDrive - Estudiantes ITCR\Documentos\I_Semestre_2026\L
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\tex\latex\translations\dicts\translations-basic-dictionary-spanish.trsl
-INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
-INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmrc8t.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr8.tfm
@@ -296,6 +294,7 @@ INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr9.tf
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmmi9.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmsy9.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex9.tfm
+INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\cmextra\cmex7.tfm
 INPUT C:\Users\Usuario\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
 INPUT .\fig_finales\Diagrama_audio_tono.png
 INPUT .\fig_finales\Diagrama_audio_tono.png
